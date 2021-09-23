@@ -1,0 +1,18 @@
+.addi-method label.addi-label span{
+    width: 100%;
+    float: left;
+    margin-left: 20px;
+    margin-bottom: 15px
+}
+.addi-method{
+    padding-bottom: 15px;
+}
+.addi-method img{
+    min-width: 100px;
+}
+
+@media screen and (max-width:  767px){
+    .payment-method.addi-method .payment-method-content .messages{
+        margin-top: 20px;
+    }
+}

@@ -1,0 +1,9 @@
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="quote_payment" resource="checkout" engine="innodb" comment="Sales Flat Quote Payment">
+        <column xsi:type="varchar" name="document_number" nullable="true" comment="Document Number"/>
+    </table>
+    <table name="sales_order_payment" resource="sales" engine="innodb" comment="Sales Flat Order Payment">
+        <column xsi:type="varchar" name="document_number" nullable="true" comment="Document Number"/>
+    </table>
+</schema>

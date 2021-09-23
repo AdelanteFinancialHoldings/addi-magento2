@@ -1,0 +1,68 @@
+<!--
+/**
+ * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<div class="payment-method addi-method" data-bind="css: {'_active': (getCode() == isChecked())}">
+    <div class="payment-method-title field choice">
+        <input type="radio"
+               name="payment[method]"
+               class="radio"
+               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
+        <label data-bind="attr: {'for': getCode()}" class="label addi-label">
+            <img data-bind="attr: { src: getImage() }" alt="" style="max-width: 10%;"><!-- ko i18n: 'Pay later with Addi'--><!-- /ko -->
+        </label>
+
+    </div>
+    <div class="payment-method-content">
+        <!-- ko foreach: getRegion('messages') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!--/ko-->
+        <div class="payment-method-billing-address">
+            <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+        <p data-bind="html: getInstructions()"></p>
+
+        <fieldset class="fieldset payment method" data-bind='attr: {id: "payment_form_" + getCode()}'>
+            <div class="field field-number required">
+                <label for="document_number" class="label">
+                    <span><!-- ko i18n: 'Id Number'--><!-- /ko --></span>
+                </label>
+                <div class="control">
+                    <input type="text"
+                           id="document_number"
+                           name="payment[document_number]"
+                           data-validate="{required:true,'validate-number':true}"
+                           data-bind='
+                                attr: {title: $t("Id Number")},
+                                value: documentNumber'
+                           class="input-text validate-length maximum-length-20 minimum-length-6" maxlength="20"/>
+                </div>
+            </div>
+        </fieldset>
+
+        <div class="checkout-agreements-block">
+            <!-- ko foreach: $parent.getRegion('before-place-order') -->
+                <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+        <div class="actions-toolbar">
+            <div class="primary">
+                <button class="action primary checkout"
+                        type="submit"
+                        data-bind="
+                        click: placeOrder,
+                        attr: {title: $t('Place Order')},
+                        css: {disabled: !isPlaceOrderActionAllowed()},
+                        enable: (getCode() == isChecked())
+                        "
+                        disabled>
+                    <span data-bind="i18n: 'Place Order'"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

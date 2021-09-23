@@ -1,0 +1,9 @@
+/**
+ * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+.addi-section .addi-payment-logo {background: url(images/addi-logo.png)  no-repeat 0 0% / 19rem auto;
+    height: 100px; width: auto; padding-left: 20rem; display:inline-block; vertical-align: middle;}
+.addi-section .button-container {float: right;}
+.addi-section .addi-payment-text { display: inline-block; vertical-align: middle; width: 50%}
