@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+	<default>
+		<payment>
+			<addi>
+				<active>0</active>
+				<model>Addi\Payment\Model\Payment\Addi</model>
+				<order_status>pending</order_status>
+				<title>Addi</title>
+				<allowspecific>1</allowspecific>
+				<specificcountry>CO</specificcountry>
+				<group>offline</group>
+				<sandbox>1</sandbox>
+                <audience></audience>
+                <grant_type>client_credentials</grant_type>
+                <client_id></client_id>
+                <client_secret></client_secret>
+				<payment_action>0</payment_action>
+			</addi>
+		</payment>
+	</default>
+</config>
