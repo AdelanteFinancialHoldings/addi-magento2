@@ -1,5 +1,5 @@
 {
-    "name": "addi/module-payment",
+    "name": "addi/magento2-payment",
     "description": "",
     "type": "magento2-module",
     "license": "proprietary",
