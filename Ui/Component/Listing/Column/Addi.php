@@ -14,7 +14,7 @@ class Addi extends Column
     protected $_orderRepository;
     protected $_searchCriteria;
 
-<<<<<<< HEAD
+
     public function __construct(
         ContextInterface $context,
         UiComponentFactory $uiComponentFactory,
@@ -23,10 +23,6 @@ class Addi extends Column
         array $components = array(),
         array $data = array()
     ){
-=======
-    public function __construct(ContextInterface $context, UiComponentFactory $uiComponentFactory, OrderRepositoryInterface $orderRepository, SearchCriteriaBuilder $criteria, array $components = [], array $data = [])
-    {
->>>>>>> 708930370b8218fe39a37235b3cf07ba6e4c7cd6
         $this->_orderRepository = $orderRepository;
         $this->_searchCriteria  = $criteria;
         parent::__construct($context, $uiComponentFactory, $components, $data);
@@ -36,10 +32,6 @@ class Addi extends Column
     {
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as & $item) {
-<<<<<<< HEAD
-=======
-
->>>>>>> 708930370b8218fe39a37235b3cf07ba6e4c7cd6
                 $order  = $this->_orderRepository->get($item["entity_id"]);
                 $status = $order->getData("addi_id");
                 // $this->getData('name') returns the name of the column so in this case it would return export_status
