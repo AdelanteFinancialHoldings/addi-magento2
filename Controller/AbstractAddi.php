@@ -102,7 +102,6 @@ abstract class AbstractAddi extends Action
                 } else {
                     $this->messageManager->addErrorMessage($e->getMessage());
                 }
-
                 return $resultRedirect->setPath('*/*/history');
             } catch (Exception $e) {
                 $this->messageManager->addExceptionMessage(

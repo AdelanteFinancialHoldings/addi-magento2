@@ -26,13 +26,13 @@ class InstallData implements InstallDataInterface
         SalesSetupFactory $salesSetupFactory
     ) {
         $this->_quoteSetupFactory = $quoteSetupFactory;
-
         $this->_salesSetupFactory = $salesSetupFactory;
     }
 
     /**
      * {@inheritdoc}
      */
+
     // @codingStandardsIgnoreStart
     public function install(
         ModuleDataSetupInterface $setup,

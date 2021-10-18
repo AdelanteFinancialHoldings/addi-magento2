@@ -15,6 +15,7 @@ class Payment extends Fieldset
     /**
      * @var Config
      */
+
     protected $_config;
     /**
      * @var SecureHtmlRenderer
@@ -93,7 +94,6 @@ class Payment extends Fieldset
         if ($element->getComment()) {
             $html .= '<span class="heading-intro">' . $element->getComment() . '</span>';
         }
-
         $html .= '<div class="config-alt"></div>';
         $html .= '</div></div>';
 

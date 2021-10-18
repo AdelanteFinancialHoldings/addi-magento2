@@ -77,6 +77,4 @@ class SaveInfoAddi implements ObserverInterface
     {
         return preg_replace("/[^0-9]/", "", $string);
     }
-
-
 }

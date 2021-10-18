@@ -22,7 +22,6 @@
     color: #fff;
     border-radius: 5px;
 }
-
 @media screen and (max-width:  767px){
     .payment-method.addi-method .payment-method-content .messages{
         margin-top: 20px;

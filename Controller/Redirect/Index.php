@@ -19,6 +19,7 @@ class Index extends AbstractAddi
     /**
      * @var CheckoutSession
      */
+
     protected $_checkSession;
 
     public function __construct(
