@@ -14,7 +14,6 @@ class Addi extends Column
     protected $_orderRepository;
     protected $_searchCriteria;
 
-
     public function __construct(
         ContextInterface $context,
         UiComponentFactory $uiComponentFactory,

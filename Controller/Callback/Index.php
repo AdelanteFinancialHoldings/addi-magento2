@@ -98,6 +98,7 @@ class Index extends Action implements CsrfAwareActionInterface, HttpPostActionIn
         $this->_checSession = $checSession;
     }
 
+
     /**
      * @return false|ResponseInterface|Json|ResultInterface
      */
@@ -271,5 +272,6 @@ class Index extends Action implements CsrfAwareActionInterface, HttpPostActionIn
     {
         return null;
     }
+
 }
 
