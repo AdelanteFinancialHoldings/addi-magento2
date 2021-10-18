@@ -6,39 +6,138 @@
                 <comment><![CDATA[<div class="addi-payment-logo"></div><div class="addi-payment-text">Offer your customers the ability to buy what they want, whenever they want with an easy NO-INTEREST installment plan with Addi. It only takes minutes, and it’s simple as can be! No hassle, no complications.</div>]]></comment>
                 <fieldset_css>complex addi-section</fieldset_css>
                 <frontend_model>Addi\Payment\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
-				<field id="active" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="select">
-					<label>Enabled</label>
-					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-				</field>
-				<field id="title" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
-					<label>Title</label>
-				</field>
-				<field id="order_status" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label" type="select">
-					<label>New Order Status</label>
-					<source_model>Magento\Sales\Model\Config\Source\Order\Status\NewStatus</source_model>
-				</field>
-				<field id="allowspecific" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="40" translate="label" type="allowspecific">
-					<label>Payment from Applicable Countries</label>
-					<source_model>Addi\Payment\Model\Config\Source\Allspecificcountries</source_model>
-				</field>
-				<field id="specificcountry" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="50" translate="label" type="multiselect">
-					<label>Payment from Applicable Countries</label>
-					<source_model>Addi\Payment\Model\Config\Source\Country</source_model>
-					<can_be_empty>0</can_be_empty>
-				</field>
-				<field id="sandbox" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="60" translate="label" type="select">
-					<label>Ambiente de Desarrollo</label>
-					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-				</field>
-				<field id="client_id" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="90" translate="label" type="password">
-					<label>Client Id</label>
-				</field>
-                <field id="client_secret" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="90" translate="label" type="password">
-                    <label>Client Secret</label>
-                </field>
-				<field id="sort_order" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="500" translate="label" type="text">
-					<label>Sort Order</label>
-				</field>
+                <group id="credentials" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label">
+                    <label>Credentials</label>
+                    <attribute type="expanded">1</attribute>
+                    <field id="active" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="select">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/addi/active</config_path>
+                    </field>
+                    <field id="title" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                        <label>Title</label>
+                        <config_path>payment/addi/title</config_path>
+                    </field>
+                    <field id="order_status" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label" type="select">
+                        <label>New Order Status</label>
+                        <source_model>Magento\Sales\Model\Config\Source\Order\Status\NewStatus</source_model>
+                    </field>
+                    <field id="country" translate="label" type="select" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Country</label>
+                        <source_model>Addi\Payment\Model\Source\Countries::getOptions</source_model>
+                    </field>
+                    <field id="allowspecific" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="40" translate="label" type="allowspecific">
+                        <label>Payment from Applicable Countries</label>
+                        <source_model>Addi\Payment\Model\Config\Source\Allspecificcountries</source_model>
+                    </field>
+                    <field id="specificcountry" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="50" translate="label" type="multiselect">
+                        <label>Payment from Applicable Countries</label>
+                        <source_model>Addi\Payment\Model\Config\Source\Country</source_model>
+                        <can_be_empty>0</can_be_empty>
+                    </field>
+                    <field id="sandbox" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="60" translate="label" type="select">
+                        <label>Sandbox</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                    <field id="client_id" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="90" translate="label" type="password">
+                        <label>Client Id</label>
+                    </field>
+                    <field id="client_secret" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="90" translate="label" type="password">
+                        <label>Client Secret</label>
+                    </field>
+                    <field id="sort_order" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="500" translate="label" type="text">
+                        <label>Sort Order</label>
+                    </field>
+                </group>
+                <group id="widget_styles" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Widget Styles Configuration </label>
+
+                    <field id="widget_active" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="select">
+                        <label>Widget Active</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                    <field id="border_color" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                        <label>Border Color</label>
+                    </field>
+                    <field id="border_radius" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                        <label>Border Radius</label>
+                    </field>
+                    <field id="font_color" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                        <label>Font Color</label>
+                    </field>
+                    <field id="font_family" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                        <label>Font Family</label>
+                    </field>
+                    <field id="font_size" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                        <label>Font Size</label>
+                    </field>
+                    <field id="icon_background_color" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                        <label>Addi icon Background color </label>
+                    </field>
+                    <field id="widget_background_color" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                        <label>Widget Background color </label>
+                    </field>
+                    <field id="margin" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                        <label>Margin </label>
+                    </field>
+                    <field id="addi_logo_blank" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="select">
+                        <label>Logo Addi Blank</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                </group>
+                <group id="modal_styles" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="60" translate="label">
+                    <label>Modal Styles Configuration </label>
+
+                    <field id="background_color" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                        <label>Background Color </label>
+                    </field>
+                    <field id="font_color" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                        <label>Font Color </label>
+                    </field>
+                    <field id="font_family" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                        <label>Font Family </label>
+                    </field>
+                    <field id="price_color" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                        <label>Price Color </label>
+                    </field>
+                    <field id="banner_background_color" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                        <label>Banner Background Color</label>
+                    </field>
+                    <field id="banner_font_color" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                        <label>Banner Font Color</label>
+                    </field>
+                    <field id="backgrond_color_modal" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                        <label>Modal Background Color</label>
+                    </field>
+                    <field id="button_border_color" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                        <label>Modal Button Border Color</label>
+                    </field>
+                    <field id="button_border_radius" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                        <label>Button Border Radius</label>
+                    </field>
+                    <field id="button_background_color" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                        <label>Button Background Color</label>
+                    </field>
+                    <field id="button_font_color" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                        <label>Button Font Color</label>
+                    </field>
+                </group>
+
+
+                <group id="widget_home" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="60" translate="label">
+                    <label>Widget Home Configuration</label>
+                    <field id="type" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                        <label>Widget Type </label>
+                    </field>
+                    <field id="element_reference" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                        <label>Element reference </label>
+                    </field>
+                    <field id="active" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="select">
+                        <label>Widget in Home</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+
+                </group>
 			</group>
 		</section>
 	</system>

@@ -12,7 +12,8 @@ use Magento\Framework\App\Area;
 use Magento\Quote\Model\Quote\Payment;
 use Psr\Log\LoggerInterface;
 
-class SaveInfoAddi implements ObserverInterface {
+class SaveInfoAddi implements ObserverInterface
+{
     /**
      * @var InputParamsResolver
      */
@@ -24,7 +25,7 @@ class SaveInfoAddi implements ObserverInterface {
     /**
      * @var LoggerInterface
      */
-    protected $logger;
+    protected $_logger;
     /**
      * @var State
      */
@@ -33,7 +34,7 @@ class SaveInfoAddi implements ObserverInterface {
     /**
      * @var CheckoutSession
      */
-    protected $checkSession;
+    protected $_checkSession;
 
     public function __construct(
         InputParamsResolver $inputParamsResolver,
@@ -44,26 +45,38 @@ class SaveInfoAddi implements ObserverInterface {
     ) {
         $this->_inputParamsResolver = $inputParamsResolver;
         $this->_quoteRepository = $quoteRepository;
-        $this->logger = $logger;
+        $this->_logger = $logger;
         $this->_state = $state;
-        $this->checkSession = $checkSession;
+        $this->_checkSession = $checkSession;
     }
-    public function execute(EventObserver $observer) {
+    public function execute(EventObserver $observer)
+    {
         $event = $observer->getEvent();
         $input = $event->getInput();
-        /* @var $quote \Magento\Quote\Model\Quote */
+        /** @var \Magento\Quote\Model\Quote $quote */
         $quote = $event->getPayment()->getQuote();
         $additionalData = (array)$input->getAdditionalData();
         if (isset($additionalData['document_number'])) {
             $paymentQuote = $quote->getPayment();
 
             $paymentOrder = $observer->getEvent()->getPayment();
-            $paymentOrder->setData('document_number', $additionalData['document_number']);
-            $paymentQuote->setData('document_number', $additionalData['document_number']);
+
+            $documentNumber = $this->onlyNumbers($additionalData['document_number']);
+
+            $paymentOrder->setData('document_number', $documentNumber);
+            $paymentQuote->setData('document_number', $documentNumber);
 
             $paymentQuote->save();
             $paymentOrder->save();
-            $this->checkSession->setDocumentNumber($additionalData['document_number']);
+
+            $this->_checkSession->setDocumentNumber($documentNumber);
         }
     }
+
+    public function onlyNumbers($string)
+    {
+        return preg_replace("/[^0-9]/", "", $string);
+    }
+
+
 }

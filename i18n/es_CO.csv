@@ -20,3 +20,5 @@
 "Credentials error Unauthorized.","Error de Autenticación valide las credenciales.",module,Addi_Payment,1
 "The maximum number attempts has been exceeded.","Error de comunicación con Addi, se han sobrepasado numero máximo de intentos.",module,Addi_Payment,1
 "The payment process with Addi was not completed correctly.","El proceso de pago con Addi no fue concluido correctamente.",module,Addi_Payment,1
+"Country","País",module,Addi_Payment,1
+"%1% discount","%1% de descuento",module,Addi_Payment,1

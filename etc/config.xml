@@ -3,19 +3,55 @@
 	<default>
 		<payment>
 			<addi>
-				<active>0</active>
-				<model>Addi\Payment\Model\Payment\Addi</model>
-				<order_status>pending</order_status>
-				<title>Addi</title>
-				<allowspecific>1</allowspecific>
-				<specificcountry>CO</specificcountry>
-				<group>offline</group>
-				<sandbox>1</sandbox>
-                <audience></audience>
-                <grant_type>client_credentials</grant_type>
-                <client_id></client_id>
-                <client_secret></client_secret>
-				<payment_action>0</payment_action>
+                <model>Addi\Payment\Model\Payment\Addi</model>
+                <credentials>
+                    <active>0</active>
+                    <order_status>pending</order_status>
+                    <title>Addi</title>
+                    <allowspecific>1</allowspecific>
+                    <specificcountry>CO,BR</specificcountry>
+                    <country>CO</country>
+                    <group>offline</group>
+                    <sandbox>1</sandbox>
+                    <audience></audience>
+                    <grant_type>client_credentials</grant_type>
+                    <client_id></client_id>
+                    <client_secret></client_secret>
+                    <payment_action>0</payment_action>
+                </credentials>
+
+                <widget_styles>
+                    <widget_active>1</widget_active>
+                    <border_color>black</border_color>
+                    <border_radius>5px</border_radius>
+                    <font_color>black</font_color>
+                    <font_family>system-ui</font_family>
+                    <font_size>14px</font_size>
+                    <icon_background_color>black</icon_background_color>
+                    <widget_background_color>transparent</widget_background_color>
+                    <margin>8px 0px</margin>
+                    <addi_logo_blank>1</addi_logo_blank>
+                </widget_styles>
+
+                <modal_styles>
+                    <background_color>#eee</background_color>
+                    <font_color>black</font_color>
+                    <font_family>system-ui</font_family>
+                    <price_color>#3c65ec</price_color>
+                    <banner_background_color>#4cbd99</banner_background_color>
+                    <banner_font_color>white</banner_font_color>
+                    <backgrond_color_modal>white</backgrond_color_modal>
+                    <button_border_color>#4cbd99</button_border_color>
+                    <button_border_radius>5px</button_border_radius>
+                    <button_background_color>transparent</button_background_color>
+                    <button_font_color>#4cbd99</button_font_color>
+                </modal_styles>
+
+                <widget_home>
+                    <type>banner_02</type>
+                    <element_reference>#ms-masthead</element_reference>
+                    <active>0</active>
+                </widget_home>
 			</addi>
 		</payment>
 	</default>

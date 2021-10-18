@@ -14,39 +14,53 @@ use Magento\Framework\View\Asset\Repository;
 use Magento\OfflinePayments\Model\Checkmo;
 use Magento\Payment\Helper\Data as PaymentHelper;
 use Psr\Log\LoggerInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Addi\Payment\lib\AddiPriceDiscount;
 
 class AddiConfigProvider implements ConfigProviderInterface
 {
     /**
      * @var string[]
      */
-    protected $methodCode = AddiPayment::PAYMENT_METHOD_ADDI_CODE;
+    protected $_methodCode = AddiPayment::PAYMENT_METHOD_ADDI_CODE;
 
     /**
      * @var Checkmo
      */
-    protected $method;
+    protected $_method;
 
     /**
      * @var Escaper
      */
-    protected $escaper;
+    protected $_escaper;
     /**
      * @var Repository
      */
-    private $assetRepo;
+    protected $_assetRepo;
     /**
      * @var RequestInterface
      */
-    private $request;
+    protected $_request;
     /**
      * @var LoggerInterface
      */
-    private $logger;
+    protected $_logger;
     /**
      * @var UrlInterface
      */
-    private $urlBuilder;
+    protected $_urlBuilder;
+
+    /**
+     * @var ScopeConfigInterface
+     */
+    protected $_scopeConfig;
+
+    /**
+     * @var CheckoutSession
+     */
+    protected $_checkoutSession;
 
     /**
      * @param PaymentHelper $paymentHelper
@@ -63,14 +77,18 @@ class AddiConfigProvider implements ConfigProviderInterface
         Repository $assetRepo,
         RequestInterface $request,
         LoggerInterface $logger,
-        UrlInterface $urlBuilder
+        UrlInterface $urlBuilder,
+        ScopeConfigInterface $scopeConfig,
+        CheckoutSession $checkoutSession
     ) {
-        $this->escaper = $escaper;
-        $this->method = $paymentHelper->getMethodInstance($this->methodCode);
-        $this->assetRepo = $assetRepo;
-        $this->request = $request;
-        $this->logger = $logger;
-        $this->urlBuilder = $urlBuilder;
+        $this->_escaper = $escaper;
+        $this->_method = $paymentHelper->getMethodInstance($this->_methodCode);
+        $this->_assetRepo = $assetRepo;
+        $this->_request = $request;
+        $this->_logger = $logger;
+        $this->_urlBuilder = $urlBuilder;
+        $this->_scopeConfig = $scopeConfig;
+        $this->_checkoutSession = $checkoutSession;
     }
 
     /**
@@ -78,17 +96,45 @@ class AddiConfigProvider implements ConfigProviderInterface
      */
     public function getConfig()
     {
-        $instructions = __("<br><p>Finish your purchase with <b>Addi</b></p><p>Is simple and fast:</p><ul style='list-style-type: square;'><li>No credit card needed and in minutes.</li><li>Pay your first installment 1 month after your purchase.</li><li>100% online. No paperwork or hidden charges.</li></ul><b>You only need your ID and WhatsApp!</b>");
+        $instructions = __(
+            "<br>
+            <p>Finish your purchase with <b>Addi</b></p>
+            <p>Is simple and fast:</p>
+            <ul style='list-style-type: square;'>
+                <li>No credit card needed and in minutes.</li>
+                <li>Pay your first installment 1 month after your purchase.</li>
+                <li>100% online. No paperwork or hidden charges.</li>
+            </ul>
+            <b>You only need your ID and WhatsApp!</b>"
+        );
 
-        return [
-            'payment' => [
-                'addi' => [
+        //price range and discounts
+        $quote = $this->_checkoutSession->getQuote();
+        $country = $this->getScopeConfig('payment/addi/credentials/country');
+        $sandbox = $this->getScopeConfig('payment/addi/credentials/sandbox');
+
+        $request = new AddiPriceDiscount();
+        $prices = $request->getPriceAndDiscounts($quote->getGrandTotal(), $country, $sandbox);
+
+        $this->_checkoutSession->setAddiMinAmount($prices->minAmount);
+        $this->_checkoutSession->setAddiMaxAmount($prices->maxAmount);
+        $this->_checkoutSession->setAddiDiscount(0);
+
+        if (isset($prices->policy->discount)) {
+            $this->_checkoutSession->setAddiDiscount($prices->policy->discount*100);
+        }
+
+        return array(
+            'payment' => array(
+                'addi' => array(
                     'image' => $this->getViewFileUrl("Addi_Payment::images/addi-logo.png"),
                     'instructions' => $instructions,
                     'label' => "Paga después con Addi",
-                ],
-            ],
-        ];
+                    'country' => $country,
+                    'discount' => $this->_checkoutSession->getAddiDiscount(),
+                ),
+            ),
+        );
     }
 
     /**
@@ -98,7 +144,7 @@ class AddiConfigProvider implements ConfigProviderInterface
      */
     protected function getImageUrl()
     {
-        return $this->method->getPayableTo();
+        return $this->_method->getPayableTo();
     }
 
     /**
@@ -108,14 +154,23 @@ class AddiConfigProvider implements ConfigProviderInterface
      * @param array $params
      * @return string
      */
-    protected function getViewFileUrl($fileId, array $params = [])
+    protected function getViewFileUrl($fileId, array $params = array())
     {
         try {
-            $params = array_merge(['_secure' => $this->request->isSecure()], $params);
-            return $this->assetRepo->getUrlWithParams($fileId, $params);
+            $params = array_merge(array('_secure' => $this->_request->isSecure()), $params);
+            return $this->_assetRepo->getUrlWithParams($fileId, $params);
         } catch (LocalizedException $e) {
-            $this->logger->critical($e);
-            return $this->urlBuilder->getUrl('', ['_direct' => 'core/index/notFound']);
+            $this->_logger->critical($e);
+            return $this->_urlBuilder->getUrl('', array('_direct' => 'core/index/notFound'));
         }
+    }
+
+    /**
+     * @param $configPath
+     * @return mixed
+     */
+    public function getScopeConfig($configPath)
+    {
+        return $this->_scopeConfig->getValue($configPath, ScopeInterface::SCOPE_STORE);
     }
 }

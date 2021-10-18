@@ -42,17 +42,18 @@ class Country implements \Magento\Framework\Option\ArrayInterface
     public function toOptionArray($isMultiselect = false, $foregroundCountries = '')
     {
         if (!$this->_options) {
-                $this->_options = $this->_countryCollection->addFieldToFilter('country_id',['in' => array('CO')])
+            $this->_options = $this->_countryCollection
+                              ->addFieldToFilter('country_id', array('in' => array('CO','BR')))
                               ->loadData()->setForegroundCountries(
-                $foregroundCountries
-            )->toOptionArray(
-                false
-            );
+                                  $foregroundCountries
+                              )->toOptionArray(
+                                  false
+                              );
         }
 
         $options = $this->_options;
         if (!$isMultiselect) {
-            array_unshift($options, ['value' => '', 'label' => __('--Please Select--')]);
+            array_unshift($options, array('value' => '', 'label' => __('--Please Select--')));
         }
 
         return $options;

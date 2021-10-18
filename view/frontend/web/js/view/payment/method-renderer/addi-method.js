@@ -6,7 +6,8 @@ define(
         'Magento_Checkout/js/model/payment/additional-validators',
         'mage/storage',
         'mage/validation',
-        'domReady!'
+        'domReady!',
+        'mage/translate'
     ],
     function ($,Component,fullScreenLoader,additionalValidators,storage) {
         'use strict';
@@ -30,6 +31,15 @@ define(
             },
             getImage: function () {
                 return window.checkoutConfig.payment.addi.image;
+            },
+            getAddiDiscount: function () {
+                return window.checkoutConfig.payment.addi.discount;
+            },
+            showDiscountLabel:function(){
+                return (parseInt(window.checkoutConfig.payment.addi.discount)>0);
+            },
+            getLabelDiscount: function () {
+                return $.mage.__('%1% discount').replace('%1', this.getAddiDiscount());
             },
             /**
              * @return {Object}

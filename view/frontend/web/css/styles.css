@@ -10,6 +10,18 @@
 .addi-method img{
     min-width: 100px;
 }
+.addi-method label{
+    position: relative;
+}
+.addi-method label div{
+    position: absolute;
+    top: -20px;
+    right: -120px;
+    background: #4cbd99;
+    padding: 5px;
+    color: #fff;
+    border-radius: 5px;
+}
 
 @media screen and (max-width:  767px){
     .payment-method.addi-method .payment-method-content .messages{

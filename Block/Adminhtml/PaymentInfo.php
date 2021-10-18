@@ -3,15 +3,15 @@
 
 namespace Addi\Payment\Block\Adminhtml;
 
-
 use Addi\Payment\Model\Payment\Addi;
+use Magento\Framework\Registry;
 
 class PaymentInfo extends \Magento\Backend\Block\Template
 {
     /**
-     * @var \Magento\Framework\Registry
+     * @var Registry
      */
-    protected $registry;
+    protected $_registry;
 
     /**
      * @param \Magento\Backend\Block\Template\Context $context
@@ -21,9 +21,9 @@ class PaymentInfo extends \Magento\Backend\Block\Template
     public function __construct(
         \Magento\Backend\Block\Template\Context $context,
         \Magento\Framework\Registry $registry,
-        array $data = []
+        array $data = array()
     ) {
-        $this->registry = $registry;
+        $this->_registry = $registry;
         parent::__construct($context, $data);
     }
 
@@ -34,7 +34,7 @@ class PaymentInfo extends \Magento\Backend\Block\Template
      */
     public function getPayment()
     {
-        $order = $this->registry->registry('current_order');
+        $order = $this->_registry->registry('current_order');
         return $order->getPayment();
     }
 
@@ -45,7 +45,7 @@ class PaymentInfo extends \Magento\Backend\Block\Template
      */
     public function getOrder()
     {
-        $order = $this->registry->registry('current_order');
+        $order = $this->_registry->registry('current_order');
         return $order;
     }
 

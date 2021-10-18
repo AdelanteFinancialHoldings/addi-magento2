@@ -19,16 +19,15 @@ class Index extends AbstractAddi
     /**
      * @var CheckoutSession
      */
-    protected $checkSession;
+    protected $_checkSession;
 
     public function __construct(
         UrlHelper $urlHelper,
         OrderFactory $orderFactory,
         Context $context,
         CheckoutSession $checkSession
-    )
-    {
-        $this->checkSession = $checkSession;
+    ) {
+        $this->_checkSession = $checkSession;
         parent::__construct($urlHelper, $orderFactory, $context);
     }
 
@@ -37,7 +36,7 @@ class Index extends AbstractAddi
      *
      * Note: Request will be added as operation argument in future
      *
-     * @return ResponseInterface
+     * @return ResponseInterface|false
      * @throws Exception
      */
     public function execute()
@@ -46,31 +45,33 @@ class Index extends AbstractAddi
             /** @var Order $order */
             $order = $this->getOrder();
 
-            if(!$order){
+            if (!$order ) {
                 $this->logger("ERROR REDIRECT CONTROLLER ORDER NOT FOUND");
                 return false;
             }
 
             $timeWaiting = 0;
-            do{
-                $order = $this->orderFactory->create()->load($order->getId());
-                if($order->getStatus() !== 'pending_payment'){
+
+            do {
+                if ($this->validateOrderStatus($order->getId())) {
                     break;
                 }
-                sleep(5);
-                $timeWaiting+= 5;
-            }while($timeWaiting < self::TIMEOUT);
 
-            if($order->getStatus() == 'processing'){
-                $this->checkSession->setLastSuccessQuoteId($order->getQuoteId());
-                $this->checkSession->setLastQuoteId($order->getQuoteId());
-                $this->checkSession->setLastOrderId($order->getId());
+                usleep(5000000); //5000000 microseconds = 5 seconds
+                $timeWaiting+= 5;
+            } while ($timeWaiting < self::TIMEOUT);
+
+            if ($order->getStatus() == 'processing') {
+                $this->_checkSession->setLastSuccessQuoteId($order->getQuoteId());
+                $this->_checkSession->setLastQuoteId($order->getQuoteId());
+                $this->_checkSession->setLastOrderId($order->getId());
 
                 return $this->_redirect('checkout/onepage/success');
-            }else{
-                if($timeWaiting > self::TIMEOUT){
+            } else {
+                if ($timeWaiting > self::TIMEOUT) {
                     $this->messageManager->addWarningMessage('Addi Payment wait timeout exceeded');
                 }
+
                 return $this->reOrder($order);
             }
         }catch(\Throwable $error){
@@ -79,11 +80,25 @@ class Index extends AbstractAddi
     }
 
     /**
+     * @param $orderId
+     * @return bool
+     */
+    public function validateOrderStatus($orderId):bool
+    {
+        $order = $this->orderFactory->create()->load($orderId);
+        if ($order->getStatus() !== 'pending_payment' ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * @return mixed
      */
     public function getLastRealOrder()
     {
-        return $this->checkSession->getLastRealOrder();
+        return $this->_checkSession->getLastRealOrder();
     }
 
     /**
@@ -95,10 +110,12 @@ class Index extends AbstractAddi
         if ($lastRealOrder) {
             return $lastRealOrder;
         }
+
         return false;
     }
 
-    public function logger($message){
+    public function logger($message)
+    {
         $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/addi.log');
         $logger = new \Zend\Log\Logger();
         $logger->addWriter($writer);

@@ -1,0 +1,24 @@
+"<div class=""addi-payment-logo""></div><div class=""addi-payment-text"">Offer your customers the ability to buy what they want, whenever they want with an easy NO-INTEREST installment plan with Addi. It only takes minutes, and it’s simple as can be! No hassle, no complications.</div>","<div class=""addi-payment-logo""></div><div class=""addi-payment-text"">Ofereça aos seus clientes a possibilidade de parcelarem SEM JUROS o que quiserem e quando quiserem, pagando depois com Addi. Parcelamento rápido, em minutos. Como deve ser.</div>",module,Addi_Payment,1
+"Enabled","Activado",module,Addi_Payment,1
+"Yes","Si",module,Addi_Payment,1
+"Title","Título",module,Addi_Payment,1
+"Payment from Applicable Countries","Países que aplica",module,Addi_Payment,1
+"All Allowed Countries","Todos los paises permitidos",module,Addi_Payment,1
+"Sandbox","Entorno de Desarrollo",module,Addi_Payment,1
+"Sort Order","Orden para mostrarse",module,Addi_Payment,1
+"Specific Countries","Países Especificos",module,Addi_Payment,1
+"New Order Status","Estatus Nuevo Pedido",module,Addi_Payment,1
+"Configure","Configurar",module,Addi_Payment,1
+"Close","Cerrar",module,Addi_Payment,1
+"<br><p>Finish your purchase with <b>Addi</b></p><p>Is simple and fast:</p><ul style='list-style-type: square;'><li>No credit card needed and in minutes.</li><li>Pay your first installment 1 month after your purchase.</li><li>100% online. No paperwork or hidden charges.</li></ul><b>You only need your ID and WhatsApp!</b>","<br><p>Finalize sua compra com <b>Addi</b></p><p>É simples, rápido, e seguro:</p><p><b>PIX parcelado sem juros! Pague a entrada e depois 3x</b></p><ul style='list-style-type: square;'><li>Compre agora e parcele sem precisar de cartão.</li><li>Pague a entrada e a próxima parcela em até um mês após a compra.</li><li>Sem burocracia, sem custos ocultos, e em minutos.</li></ul><b>Você só precisa de um Documento de Identidade (RG/CNH), e seu WhatsApp!</b>",module,Addi_Payment,1
+"Id Number","Documento de Identidade (RG/CNH)",module,Addi_Payment,1
+"Please enter a valid number in this field.","Solo Números por favor",module,Addi_Payment,1
+"Pay later with Addi","PIX parcelado Addi",module,Addi_Payment,1
+"Please enter more or equal than %1 symbols.","Por favor ingresa más o igual de %1 caracteres.",module,Addi_Payment,1
+"This is a required field.","Este campo es obligatorio.",module,Addi_Payment,1
+"The Customer already has an Addi Credit. This operation is not supported.","El cliente ya cuenta con crédito en ADDI, por tanto esta operación no esta soportada.",module,Addi_Payment,1
+"Credentials error Unauthorized.","Error de Autenticación valide las credenciales.",module,Addi_Payment,1
+"The maximum number attempts has been exceeded.","Error de comunicación con Addi, se han sobrepasado numero máximo de intentos.",module,Addi_Payment,1
+"The payment process with Addi was not completed correctly.","El proceso de pago con Addi no fue concluido correctamente.",module,Addi_Payment,1
+"Country","País",module,Addi_Payment,1
+"%1% discount","%1% de desconto",module,Addi_Payment,1
