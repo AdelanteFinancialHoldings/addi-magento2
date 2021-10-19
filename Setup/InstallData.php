@@ -12,50 +12,56 @@ use Magento\Framework\Setup\ModuleDataSetupInterface;
 class InstallData implements InstallDataInterface
 {
 
-    private $quoteSetupFactory;
-    private $salesSetupFactory;
+    protected $_quoteSetupFactory;
+    protected $_salesSetupFactory;
 
     /**
      * Constructor
      *
-     * @param \Magento\Quote\Setup\QuoteSetupFactory $quoteSetupFactory
+     * @param QuoteSetupFactory $quoteSetupFactory
+     * @param SalesSetupFactory $salesSetupFactory
      */
     public function __construct(
         QuoteSetupFactory $quoteSetupFactory,
         SalesSetupFactory $salesSetupFactory
     ) {
-        $this->quoteSetupFactory = $quoteSetupFactory;
+        $this->_quoteSetupFactory = $quoteSetupFactory;
 
-        $this->salesSetupFactory = $salesSetupFactory;
+        $this->_salesSetupFactory = $salesSetupFactory;
     }
 
     /**
      * {@inheritdoc}
      */
+    // @codingStandardsIgnoreStart
     public function install(
         ModuleDataSetupInterface $setup,
         ModuleContextInterface $context
-    ) {
-        $quoteSetup = $this->quoteSetupFactory->create(['setup' => $setup]);
-        $quoteSetup->addAttribute('quote', 'addi_url',
-            [
+    )
+    {
+    // @codingStandardsIgnoreEnd
+        $quoteSetup = $this->_quoteSetupFactory->create(array('setup' => $setup));
+        $quoteSetup->addAttribute(
+            'quote', 'addi_url',
+            array(
                 'type' => 'text',
                 'length' => 2048,
                 'visible' => false,
                 'required' => false,
                 'grid' => false
-            ]
+            )
         );
 
-        $salesSetup = $this->salesSetupFactory->create(['setup' => $setup]);
-        $salesSetup->addAttribute('order', 'addi_url',
-            [
+        $salesSetup = $this->_salesSetupFactory->create(array('setup' => $setup));
+        $salesSetup->addAttribute(
+            'order', 'addi_url',
+            array(
                 'type' => 'text',
                 'length' => 2048,
                 'visible' => false,
                 'required' => false,
                 'grid' => false
-            ]
+            )
         );
     }
 }

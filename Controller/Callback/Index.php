@@ -33,37 +33,37 @@ class Index extends Action implements CsrfAwareActionInterface, HttpPostActionIn
     /**
      * @var JsonFactory
      */
-    private $resultJsonFactory;
+    protected $_resultJsonFactory;
     /**
      * @var ScopeConfigInterface
      */
-    private $scopeConfig;
+    protected $_scopeConfig;
     /**
      * @var LoggerInterface
      */
-    private $logger;
+    protected $_logger;
     /**
      * @var OrderFactory
      */
-    private $orderFactory;
+    protected $_orderFactory;
     /**
      * @var PaymentFactory
      */
-    private $paymentFactory;
+    protected $_paymentFactory;
 
     /**
      * @var AddiHelper
      */
-    private $_addiHelper;
+    protected $_addiHelper;
 
     /** @var CartManagementInterface */
-    private $_cartManagement;
+    protected $_cartManagement;
 
     /** @var Session */
-    private $_checSession;
+    protected $_checSession;
 
     /** @var OrderSender */
-    private $_orderSender;
+    protected $_orderSender;
 
     /**
      * Index constructor.
@@ -84,84 +84,76 @@ class Index extends Action implements CsrfAwareActionInterface, HttpPostActionIn
         CartManagementInterface $cartManagement,
         Session $checSession,
         OrderSender $orderSender,
-        Context $context)
-    {
+        Context $context
+) {
         parent::__construct($context);
-        $this->resultJsonFactory = $resultJsonFactory;
-        $this->scopeConfig = $scopeConfig;
-        $this->logger = $logger;
-        $this->orderFactory = $orderFactory;
-        $this->paymentFactory = $paymentFactory;
+        $this->_resultJsonFactory = $resultJsonFactory;
+        $this->_scopeConfig = $scopeConfig;
+        $this->_logger = $logger;
+        $this->_orderFactory = $orderFactory;
+        $this->_paymentFactory = $paymentFactory;
         $this->_addiHelper = $addiHelper;
         $this->_cartManagement = $cartManagement;
         $this->_orderSender = $orderSender;
         $this->_checSession = $checSession;
     }
 
+
     /**
-     * Execute action based on request and return result
-     *
-     * Note: Request will be added as operation argument in future
-     *
-     * @return ResultInterface|ResponseInterface
+     * @return false|ResponseInterface|Json|ResultInterface
      */
     public function execute()
     {
-        try{
-        $retArray = array();
-        $authenticationHeader = $this->getRequest()->getHeader('Authorization');
+        try {
+            $retArray = array();
+            $authenticationHeader = $this->getRequest()->getHeader('Authorization');
 
-        if (strpos(strtolower($authenticationHeader),'basic') !== 0 ||
-            substr($authenticationHeader, 6) != 'bUFnM250b0FkZDE6cGJkITJoIWtFN1MhczVCUw=='){
+            if (strpos(strtolower($authenticationHeader), 'basic') !== 0 ||
+                substr($authenticationHeader, 6) != $this->getAuth()) {
+                http_response_code(401);
+                return false;
+            }
 
-            http_response_code(401);
-            exit;
-        }
+            $request = $this->getRequest()->getContent();
+            $this->logger("ADDI CALLBACK REQUEST: ". $request);
+            $params = json_decode($request);
+            $resultJson = $this->_resultJsonFactory->create();
 
-        $request = file_get_contents("php://input");
+            /** @var Order $order */
+            $order = $this->_orderFactory->create()->loadByIncrementId($params->orderId);
 
-        $this->logger("ADDI CALLBACK REQUEST: ". $request);
+            if (!$order->getId()) {
+                $retArray = array("status" => "reject", "error" => "Order does not exist.");
+            } else {
+                switch ($params->status ) {
+                    case "APPROVED": {
 
-        $params = json_decode($request);
+                        try{
+                            $this->_orderSender->send($order);
+                        }catch(Exception $error){
+                            $this->logger($error->getMessage());
+                        }
 
-        $resultJson = $this->resultJsonFactory->create();
-
-        /** @var Order $order */
-        $order = $this->orderFactory->create()->loadByIncrementId($params->orderId);
-
-        if ( !$order->getId()) {
-            $retArray = array("status" => "reject", "error" => "Order does not exist.");
-        } else {
-            switch ( $params->status ) {
-                case "APPROVED": {
-
-                    try{
-                        $this->_orderSender->send($order);
-                    }catch(Exception $error){
-                        $this->logger($error->getMessage());
-                    }
-
-                    $retArray = $this->processApproved($order, $params);
+                        $retArray = $this->processApproved($order, $params);
+                        break;
+                        }
+                    case "DECLINED": case "REJECTED": case "ABANDONED":{
+                    $retArray = $this->processCanceled($order, $params);
                     break;
-                }
-                case "DECLINED": case "REJECTED": case "ABANDONED":{
-                $retArray = $this->processCanceled($order, $params);
-                break;
-            }
-                default: {
-                    $retArray = array("status" => "reject", "error" => "Incorrect Status");
+                        }
+                    default: {
+                        $retArray = array("status" => "reject", "error" => "Incorrect Status");
+                        }
                 }
             }
-        }
 
-        $this->logger(print_r($retArray, true));
+            $this->logger(json_encode($retArray));
 
-        return $resultJson->setJsonData($request);
-
-        }catch (Exception $error){
+            return $resultJson->setJsonData($request);
+        } catch (Exception $error) {
             $this->logger($error->getMessage());
             $this->messageManager->addErrorMessage($error->getMessage());
-            return $this->_redirect('checkout/cart', ['_secure' => true]);
+            return $this->_redirect('checkout/cart', array('_secure' => true));
         }
     }
 
@@ -170,9 +162,10 @@ class Index extends Action implements CsrfAwareActionInterface, HttpPostActionIn
      * @param $params
      * @return array
      */
-    protected function processApproved(Order $order, $params) {
+    protected function processApproved(Order $order, $params)
+    {
 
-        if ( !$order->canInvoice() || $order->getGrandTotal() != $params->approvedAmount) {
+        if (!$order->canInvoice() || $order->getGrandTotal() != $params->approvedAmount) {
             return array("status" => "reject", "error" => "Order cannot be invoiced");
         }
 
@@ -180,30 +173,34 @@ class Index extends Action implements CsrfAwareActionInterface, HttpPostActionIn
             /** @var Payment $payment */
             $payment = $order->getPayment();
             if (!$payment) {
-                $payment = $this->paymentFactory->create();
+                $payment = $this->_paymentFactory->create();
                 $payment->setOrder($order);
             }
+
             $payment->setAmountPaid($params->approvedAmount);
             $payment->setTransactionId($params->orderId);
             $payment->setParentTransactionId($params->applicationId);
             $payment->setShouldCloseParentTransaction(true);
             $payment->setIsTransactionClosed(0);
-            $payment->setAdditionalInformation("addi_order_id",$params->orderId);
-            $payment->setAdditionalInformation("addi_application_id",$params->applicationId);
-            $payment->setAdditionalInformation("addi_approved_amount",$params->approvedAmount);
-            $payment->setAdditionalInformation("addi_currency",$params->currency);
-            $payment->setAdditionalInformation("addi_status",$params->status);
-            $payment->setAdditionalInformation("addi_status_timestamp",$params->statusTimestamp);
+            $payment->setAdditionalInformation("addi_order_id", $params->orderId);
+            $payment->setAdditionalInformation("addi_application_id", $params->applicationId);
+            $payment->setAdditionalInformation("addi_approved_amount", $params->approvedAmount);
+            $payment->setAdditionalInformation("addi_currency", $params->currency);
+            $payment->setAdditionalInformation("addi_status", $params->status);
+            $payment->setAdditionalInformation("addi_status_timestamp", $params->statusTimestamp);
             $payment->capture();
             $order->setPayment($payment);
             $order->setStatus("processing");
             $order->setState("processing");
 
             $order->save();
-
         } catch (Exception $e) {
-            return array("status" => "reject", "error" => "Error while making invoice. Magento Error: " . $e->getMessage());
+            return array(
+                "status" => "reject",
+                "error" => "Error while making invoice. Magento Error: ".$e->getMessage()
+            );
         }
+
         return array("status" => "accept", "error" => "");
 
     }
@@ -213,9 +210,10 @@ class Index extends Action implements CsrfAwareActionInterface, HttpPostActionIn
      * @param $params
      * @return array
      */
-    protected function processCanceled(Order $order, $params) {
+    protected function processCanceled(Order $order, $params)
+    {
 
-        if ( !$order->canCancel()) {
+        if (!$order->canCancel()) {
             return array("status" => "reject", "error" => "Order cannot be canceled");
         }
 
@@ -226,10 +224,12 @@ class Index extends Action implements CsrfAwareActionInterface, HttpPostActionIn
         } catch (Exception $e) {
             return array("status" => "reject", "error" => "Error while canceling. Magento Error: " . $e->getMessage());
         }
+
         return array("status" => "accept", "error" => "");
     }
 
-    public function logger($message){
+    public function logger($message)
+    {
         $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/addi.log');
         $logger = new \Zend\Log\Logger();
         $logger->addWriter($writer);
@@ -239,19 +239,32 @@ class Index extends Action implements CsrfAwareActionInterface, HttpPostActionIn
     /**
      * @inheritDoc
      */
+    // @codingStandardsIgnoreStart
     public function createCsrfValidationException(
         RequestInterface $request
     ): ?InvalidRequestException {
+    // @codingStandardsIgnoreEnd
         /** @var Redirect $resultRedirect */
         $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath('*/*/');
 
         return new InvalidRequestException(
             $resultRedirect,
-            [new Phrase('Invalid Form Key. Please refresh the page.')]
+            array(new Phrase('Invalid Form Key. Please refresh the page.'))
         );
     }
 
+    /**
+     * @return string
+     */
+    public function getAuth()
+    {
+        if ($this->_scopeConfig->getValue('payment/addi/credentials/sandbox')) {
+            return 'bUFnM250b0FkZDE6cGJkITJoIWtFN1MhczVCUw==';
+        } else {
+            return 'bUFnM250b0FkZDFwcm9kOkUleXV6TVFeVyQxdg==';
+        }
+    }
     /**
      * @inheritDoc
      */
@@ -259,5 +272,6 @@ class Index extends Action implements CsrfAwareActionInterface, HttpPostActionIn
     {
         return null;
     }
+
 }
 

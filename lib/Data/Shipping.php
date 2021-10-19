@@ -1,32 +1,33 @@
 <?php
 
-namespace Addi\Data;
+namespace Addi\Payment\lib\Data;
 
-class PickUpAddress
+
+class Shipping
 {
     /** @var string */
-    private $lineOne;
+    protected $_lineOne;
 
     /** @var string */
-    private $city;
+    protected $_city;
 
     /** @var string */
-    private $country;
+    protected $_country;
 
     /**
      * @return string
      */
     public function getLineOne(): string
     {
-        return $this->lineOne;
+        return $this->_lineOne;
     }
 
     /**
-     * @param string $lineOne
+     * @param string $_lineOne
      */
-    public function setLineOne(string $lineOne): void
+    public function setLineOne(string $_lineOne): void
     {
-        $this->lineOne = $lineOne;
+        $this->_lineOne = $_lineOne;
     }
 
     /**
@@ -34,15 +35,15 @@ class PickUpAddress
      */
     public function getCity(): string
     {
-        return $this->city;
+        return $this->_city;
     }
 
     /**
-     * @param string $city
+     * @param string $_city
      */
-    public function setCity(string $city): void
+    public function setCity(string $_city): void
     {
-        $this->city = $city;
+        $this->_city = $_city;
     }
 
     /**
@@ -50,15 +51,15 @@ class PickUpAddress
      */
     public function getCountry(): string
     {
-        return $this->country;
+        return $this->_country;
     }
 
     /**
-     * @param string $country
+     * @param string $_country
      */
-    public function setCountry(string $country): void
+    public function setCountry(string $_country): void
     {
-        $this->country = $country;
+        $this->_country = $_country;
     }
 
     /**
@@ -67,7 +68,8 @@ class PickUpAddress
      * @param string $country
      * @return $this
      */
-    public function setAddress(string $lineOne,string $city, string $country){
+    public function setAddress(string $lineOne,string $city, string $country)
+    {
         $this->setCity($city);
         $this->setCountry($country);
         $this->setLineOne($lineOne);
@@ -77,11 +79,12 @@ class PickUpAddress
     /**
      * @return array
      */
-    public function getAddress() {
-        return [
+    public function getAddress()
+    {
+        return array(
             "lineOne" => $this->getLineOne(),
             "city" => $this->getCity(),
             "country" => $this->getCountry()
-        ];
+        );
     }
 }

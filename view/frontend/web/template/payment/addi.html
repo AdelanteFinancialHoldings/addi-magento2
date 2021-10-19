@@ -12,6 +12,9 @@
                data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
         <label data-bind="attr: {'for': getCode()}" class="label addi-label">
             <img data-bind="attr: { src: getImage() }" alt="" style="max-width: 10%;"><!-- ko i18n: 'Pay later with Addi'--><!-- /ko -->
+            <!-- ko if: showDiscountLabel() -->
+            <div data-bind="html: getLabelDiscount()"></div>
+            <!-- /ko -->
         </label>
 
     </div>
@@ -35,11 +38,11 @@
                     <input type="text"
                            id="document_number"
                            name="payment[document_number]"
-                           data-validate="{required:true,'validate-number':true}"
+                           data-validate="{required:true, validationAddi:true}"
                            data-bind='
                                 attr: {title: $t("Id Number")},
                                 value: documentNumber'
-                           class="input-text validate-length maximum-length-20 minimum-length-6" maxlength="20"/>
+                           class="input-text validate-length maximum-length-20 minimum-length-6 validationAddi" maxlength="20"/>
                 </div>
             </div>
         </fieldset>

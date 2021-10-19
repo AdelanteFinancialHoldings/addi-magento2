@@ -20,17 +20,17 @@ class CsrfValidator
     /**
      * @var FormKeyValidator
      */
-    private $formKeyValidator;
+    protected $_formKeyValidator;
 
     /**
      * @var RedirectFactory
      */
-    private $redirectFactory;
+    protected $_redirectFactory;
 
     /**
      * @var AppState
      */
-    private $appState;
+    protected $_appState;
 
     /**
      * @param FormKeyValidator $formKeyValidator
@@ -42,9 +42,9 @@ class CsrfValidator
         RedirectFactory $redirectFactory,
         AppState $appState
     ) {
-        $this->formKeyValidator = $formKeyValidator;
-        $this->redirectFactory = $redirectFactory;
-        $this->appState = $appState;
+        $this->_formKeyValidator = $formKeyValidator;
+        $this->_redirectFactory = $redirectFactory;
+        $this->_appState = $appState;
     }
 
 
@@ -56,7 +56,7 @@ class CsrfValidator
      *
      * @return bool
      */
-    private function validateRequest(
+    protected function validateRequest(
         HttpRequest $request,
         ActionInterface $action
     ): bool {
@@ -64,6 +64,7 @@ class CsrfValidator
         if ($action instanceof CsrfAwareActionInterface) {
             $valid = $action->validateForCsrf($request);
         }
+
         if ($valid === null) {
             $valid = $request->isPost();
         }
@@ -77,27 +78,28 @@ class CsrfValidator
      * @param HttpRequest $request
      * @param ActionInterface $action
      *
-     * @return InvalidRequestException
+     * @throws InvalidRequestException
      */
-    private function createException(
+    protected function createException(
         HttpRequest $request,
         ActionInterface $action
-    ): InvalidRequestException {
+    ) {
         $exception = null;
         if ($action instanceof CsrfAwareActionInterface) {
             $exception = $action->createCsrfValidationException($request);
         }
+
         if (!$exception) {
-            $response = $this->redirectFactory->create()
+            $response = $this->_redirectFactory->create()
                 ->setRefererOrBaseUrl()
                 ->setHttpResponseCode(302);
-            $messages = [
+            $messages = array(
                 new Phrase('Invalid Form Key. Please refresh the page.'),
-            ];
+            );
             $exception = new InvalidRequestException($response, $messages);
         }
 
-        return $exception;
+        throw $exception;
     }
 
     /**
@@ -108,32 +110,35 @@ class CsrfValidator
      * @return void
      *@throws InvalidRequestException
      */
+    // @codingStandardsIgnoreStart
     public function aroundValidate(
         MagentoCsrfValidator $validator,
         callable $proceed,
         RequestInterface $request,
         ActionInterface $action
     ) {
-        if($action instanceof \Addi\Payment\Controller\Callback\Index ) {
+    // @codingStandardsIgnoreEnd
+        if ($action instanceof \Addi\Payment\Controller\Callback\Index ) {
             try {
-                $areaCode = $this->appState->getAreaCode();
+                $areaCode = $this->_appState->getAreaCode();
             } catch (LocalizedException $exception) {
                 $areaCode = null;
             }
+
             if ($request instanceof HttpRequest
                 && in_array(
                     $areaCode,
-                    [Area::AREA_FRONTEND, Area::AREA_ADMINHTML],
+                    array(Area::AREA_FRONTEND, Area::AREA_ADMINHTML),
                     true
                 )
             ) {
                 $valid = $this->validateRequest($request, $action);
                 if (!$valid) {
-                    throw $this->createException($request, $action);
+                   $this->createException($request, $action);
                 }
             }
         } else {
-            $proceed($request,$action);
+            $proceed($request, $action);
         }
     }
 }

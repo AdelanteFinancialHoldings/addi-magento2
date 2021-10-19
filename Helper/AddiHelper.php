@@ -4,8 +4,9 @@ namespace Addi\Payment\Helper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Catalog\Helper\Image;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
+use Magento\Framework\App\Helper\AbstractHelper;
 
-class AddiHelper extends \Magento\Framework\App\Helper\AbstractHelper
+class AddiHelper extends AbstractHelper
 {
 
     /** @var Image */
@@ -19,8 +20,7 @@ class AddiHelper extends \Magento\Framework\App\Helper\AbstractHelper
         Context $context,
         Image $imageHelper,
         CategoryRepositoryInterface $categoryRepository
-    )
-    {
+    ) {
         parent::__construct($context);
         $this->_imageHelper = $imageHelper;
         $this->_categoryRepository = $categoryRepository;
@@ -31,7 +31,8 @@ class AddiHelper extends \Magento\Framework\App\Helper\AbstractHelper
      * @return string|null
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function getCategoryName($categoryIds){
+    public function getCategoryName($categoryIds)
+    {
         foreach ($categoryIds as $categoryId) {
             $category = $this->_categoryRepository->get($categoryId);
             return $category->getName();
@@ -42,43 +43,11 @@ class AddiHelper extends \Magento\Framework\App\Helper\AbstractHelper
      * @param $product
      * @return string
      */
-    public function getImage($product){
-        $image_url = $this->_imageHelper->init($product, 'product_page_image_small')->setImageFile($product->getImage())->resize(100, 100)->getUrl();
-        return $image_url;
-    }
-
-    /**
-     * @param $params
-     * @return bool
-     * @throws \Exception
-     */
-    public function validateCallback($params){
-        switch($params['status']) {
-            case "APPROVED":
-                return true;
-                break;
-            case "PENDING":
-                throw new \Exception('La aplicación de crédito en línea se encuentra en proceso de validación.');
-                break;
-            case "REJECTED":
-                throw new \Exception('lo sentimos, tu crédito no ha sido aprobado ADDI.');
-                break;
-            case "ABANDONED":
-                throw new \Exception('La aplicación de crédito en línea superó el límite máximo de tiempo para su ejecución en la plataforma ADD.');
-                break;
-            case "DECLINED":
-                throw new \Exception('La aplicación de crédito en línea es declinada por el cliente.');
-                break;
-            case "METHOD_UNSUPPORTED":
-                throw new \Exception('En el momento no es posible continuar con la aplicación. Serás redirigido al comercio');
-                break;
-            case "INTERNAL_ERROR":
-                throw new \Exception('Ha sucedido un error en la plataforma de ADDI. Serás redirigido al comercio');
-                break;
-            default:
-                throw new \Exception('Error desconocido. Serás redirigido al comercio');
-        }
-        return false;
+    public function getImage($product)
+    {
+        return $this->_imageHelper->init($product, 'product_page_image_small')
+                ->setImageFile($product->getImage())
+                ->resize(100, 100)->getUrl();
     }
 
     public function getPhoneCode($code)
@@ -316,7 +285,7 @@ class AddiHelper extends \Magento\Framework\App\Helper\AbstractHelper
             'ZW'=>'263'
         );
 
-        $key = array_search($code,$countrycode);
+        $key = array_search($code, $countrycode);
         return $key;
     }
 }

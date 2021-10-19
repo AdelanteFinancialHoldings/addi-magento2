@@ -1,10 +1,5 @@
 <?php
 /**
- * Copyright © Magento, Inc. All rights reserved.
- * See COPYING.txt for license details.
- */
-
-/**
  * @var \Addi\Payment\Block\Adminhtml\PaymentInfo $block
  */
 $order = $block->getOrder();
@@ -17,9 +12,19 @@ $addiStatus = $payment->getAdditionalInformation('addi_status');
 ?>
 <br>
 <?php if($addiOrderId): ?>
-<strong><?= $block->escapeHtml(__('Addi Order Id')) ?></strong>: <?= $block->escapeHtml($addiOrderId) ?><br>
-<strong><?= $block->escapeHtml(__('Addi Application Id')) ?></strong>: <?= $block->escapeHtml($addiApplicationId) ?><br>
-<strong><?= $block->escapeHtml(__('Addi Approved Amount')) ?></strong>: <?= $block->escapeHtml($addiApprovedAmount) ?><br>
-<strong><?= $block->escapeHtml(__('Addi Currency')) ?></strong>: <?= $block->escapeHtml($addiCurrency) ?><br>
-<strong><?= $block->escapeHtml(__('Addi Status')) ?></strong>: <?= $block->escapeHtml($addiStatus) ?>
+<strong>
+    <?php echo $block->escapeHtml(__('Addi Order Id')) ?>
+</strong>: <?php echo $block->escapeHtml($addiOrderId) ?><br>
+<strong>
+    <?php echo $block->escapeHtml(__('Addi Application Id')) ?>
+</strong>: <?php echo $block->escapeHtml($addiApplicationId) ?><br>
+<strong>
+    <?php echo $block->escapeHtml(__('Addi Approved Amount')) ?>
+</strong>: <?php echo $block->escapeHtml($addiApprovedAmount) ?><br>
+<strong>
+    <?php echo $block->escapeHtml(__('Addi Currency')) ?>
+</strong>: <?php echo $block->escapeHtml($addiCurrency) ?><br>
+<strong>
+    <?php echo $block->escapeHtml(__('Addi Status')) ?>
+</strong>: <?php echo $block->escapeHtml($addiStatus) ?>
 <?php endif; ?>

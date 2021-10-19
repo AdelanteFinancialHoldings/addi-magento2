@@ -13,52 +13,57 @@ class Addi extends Template
     /**
      * @var Session
      */
-    private $checkoutSession;
+    protected $_checkoutSession;
     /**
      * @var Order
      */
-    private $order;
+    protected $_order;
 
     /** @var Http */
-    public $_http;
+    public $http;
 
     /**
      * Addi constructor.
      * @param Session $checkoutSession
      * @param Template\Context $context
+     * @param Http $http
      * @param array $data
      */
     public function __construct(
         Session $checkoutSession,
         Template\Context $context,
         Http $http,
-        array $data = []
+        array $data = array()
     ) {
         parent::__construct($context, $data);
-        $this->checkoutSession = $checkoutSession;
-        $this->_http = $http;
+        $this->_checkoutSession = $checkoutSession;
+        $this->http = $http;
     }
 
     /**
-     * @return Order
+     * @return false|Order
      */
-    public function getOrder() {
-        $order = $this->checkoutSession->getLastRealOrder();
-        if(!$order || $order->getState() != Order::STATE_PENDING_PAYMENT){
+    public function getOrder()
+    {
+        $order = $this->_checkoutSession->getLastRealOrder();
+        if (!$order || $order->getState() != Order::STATE_PENDING_PAYMENT) {
             return false;
         }
+
         return $order;
     }
 
-    public function redirect($url){
-        return $this->_http->setRedirect($url);
+    public function redirect($url)
+    {
+        return $this->http->setRedirect($url);
     }
 
     /**
      * @param $path
      * @return mixed
      */
-    public function getStoreConfig($path) {
+    public function getStoreConfig($path)
+    {
         return $this->_scopeConfig->getValue($path);
     }
 
@@ -66,7 +71,8 @@ class Addi extends Template
      * @param $path
      * @return bool
      */
-    public function getStoreConfigFlag($path) {
+    public function getStoreConfigFlag($path)
+    {
         return $this->_scopeConfig->isSetFlag($path);
     }
 }

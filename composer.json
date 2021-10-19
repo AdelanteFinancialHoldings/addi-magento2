@@ -6,17 +6,8 @@
     "authors": [
         {
             "name": "Diego Velazquez",
-            "email": "dieovelazquez@wolfsellers.com"
+            "email": "diegovelazquez@wolfsellers.com"
         }
     ],
-    "minimum-stability": "dev",
-    "require": {},
-    "autoload": {
-        "files": [
-            "registration.php"
-        ],
-        "psr-4": {
-            "Addi\\Payment\\": ""
-        }
-    }
+    "minimum-stability": "dev"
 }

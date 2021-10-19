@@ -27,7 +27,7 @@ abstract class AbstractAddi extends Action
     /**
      * @var UrlHelper
      */
-    private $urlHelper;
+    protected $_urlHelper;
 
     /**
      * Index constructor.
@@ -42,7 +42,7 @@ abstract class AbstractAddi extends Action
     ) {
         parent::__construct($context);
         $this->orderFactory = $orderFactory;
-        $this->urlHelper = $urlHelper;
+        $this->_urlHelper = $urlHelper;
     }
 
     /**
@@ -58,15 +58,17 @@ abstract class AbstractAddi extends Action
         $this->messageManager->addWarningMessage(__('The payment process with Addi was not completed correctly.'));
 
         /** @var Order $_order */
-        if ( $_order->getId() == null && $_order->getId() < 1 ) {
+        if ($_order->getId() == null && $_order->getId() < 1 ) {
             $this->_redirect("/");
         }
+
         if ($_order->canCancel()) {
             $_order->cancel();
             $_order->save();
         }
+
         $data = array();
-        $data[ActionInterface::PARAM_NAME_URL_ENCODED] = $this->urlHelper->getEncodedUrl();
+        $data[ActionInterface::PARAM_NAME_URL_ENCODED] = $this->_urlHelper->getEncodedUrl();
         return $this->addToCart($_order);
     }
 
@@ -74,28 +76,9 @@ abstract class AbstractAddi extends Action
      * @param Order $order
      * @return string
      */
-    private function getReorderUrl($order)
+    protected function getReorderUrl($order)
     {
         return 'sales/order/reorder/order_id/' . $order->getId();
-    }
-
-    /**
-     * Renders Success
-     *
-     * @param string $coreRoute
-     * @throws Exception
-     */
-    public function success($coreRoute = null)
-    {
-//        if ( $_order->getId() == null && $_order->getId() < 1 ) {
-//            $this->_redirect("/");
-//        }
-//        try {
-//            $this->loadLayout();
-//            $this->renderLayout();
-//        } catch (Exception $e ) {
-//            echo $e->getMessage();
-//        }
     }
 
     /**
@@ -107,7 +90,7 @@ abstract class AbstractAddi extends Action
         /** @var Redirect $resultRedirect */
         $resultRedirect = $this->resultRedirectFactory->create();
 
-        /* @var $cart Cart */
+        /** @var Cart $cart */
         $cart = $this->_objectManager->get(Cart::class);
         $items = $order->getItemsCollection();
         foreach ($items as $item) {
@@ -119,6 +102,7 @@ abstract class AbstractAddi extends Action
                 } else {
                     $this->messageManager->addErrorMessage($e->getMessage());
                 }
+
                 return $resultRedirect->setPath('*/*/history');
             } catch (Exception $e) {
                 $this->messageManager->addExceptionMessage(

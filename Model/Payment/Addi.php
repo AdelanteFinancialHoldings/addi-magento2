@@ -1,9 +1,7 @@
 <?php
 
-
 namespace Addi\Payment\Model\Payment;
-use Detection\MobileDetect;
-use Addi\Addi as AddiLib;
+use Addi\Payment\lib\Addi as AddiLib;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\Api\AttributeValueFactory;
@@ -23,6 +21,8 @@ use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Model\Order;
 use Addi\Payment\Helper\AddiHelper;
 use Throwable;
+use Magento\Framework\Filesystem;
+use Magento\Framework\App\Filesystem\DirectoryList;
 
 class Addi extends AbstractMethod
 {
@@ -50,7 +50,7 @@ class Addi extends AbstractMethod
     /**
      * @var ProductMetadataInterface
      */
-    private $productMetadata;
+    protected $_productMetadata;
 
     /**
      * @var AddiHelper
@@ -60,9 +60,15 @@ class Addi extends AbstractMethod
     /**
      * @var CheckoutSession
      */
-    protected $checkSession;
+    protected $_checkSession;
+
+    /**
+     * @var Filesystem
+     */
+    protected $_fileSystem;
 
     public function __construct(
+        Filesystem $fileSystem,
         CheckoutSession $checkSession,
         AddiHelper $addiHelper,
         ProductMetadataInterface $productMetadata,
@@ -75,15 +81,18 @@ class Addi extends AbstractMethod
         Logger $logger,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
-        array $data = [],
+        array $data = array(),
         DirectoryHelper $directory = null
     ) {
-        parent::__construct($context, $registry, $extensionFactory, $customAttributeFactory, $paymentData, $scopeConfig,
-            $logger, $resource, $resourceCollection, $data, $directory);
-        $this->productMetadata = $productMetadata;
+        parent::__construct(
+            $context, $registry, $extensionFactory, $customAttributeFactory, $paymentData, $scopeConfig,
+            $logger, $resource, $resourceCollection, $data, $directory
+        );
+        $this->_productMetadata = $productMetadata;
 
-        $this->checkSession = $checkSession;
+        $this->_checkSession = $checkSession;
         $this->_addiHelper = $addiHelper;
+        $this->_fileSystem = $fileSystem;
     }
 
 
@@ -95,17 +104,31 @@ class Addi extends AbstractMethod
     public function isAvailable(
         CartInterface $quote = null
     ) {
-        $clientId = $this->getConfigData('client_id');
-        $clientSecret = $this->getConfigData('client_secret');
+        $clientId = $this->getConfigData('credentials/client_id');
+        $clientSecret = $this->getConfigData('credentials/client_secret');
+        $country = $this->getConfigData('credentials/country');
 
-        if(!$clientSecret && !$clientId){
+        if (!$clientSecret && !$clientId) {
             return false;
         }
 
         //currency validation
         $currencyCode = $quote->getCurrency()->getQuoteCurrencyCode();
-        if($currencyCode != 'COP'){
+        if (!in_array($currencyCode, array('COP','BRL'))) {
             $this->logger('Addi Error: currency code '.$currencyCode.' is not allowed.');
+            return false;
+        }
+
+        $minAmount = $this->_checkSession->getAddiMinAmount();
+        $maxAmount = $this->_checkSession->getAddiMaxAmount();
+
+        if (floatval($quote->getGrandTotal()) < floatval($minAmount)
+            || floatval($quote->getGrandTotal()) > floatval($maxAmount)
+        ) {
+            $this->logger(
+                'Addi Error: amount is not allowed. grandtotal:'.
+                $quote->getGrandTotal()." country:".$country. ' min:'.$minAmount. ' max:'.$maxAmount
+            );
             return false;
         }
 
@@ -115,7 +138,8 @@ class Addi extends AbstractMethod
     /**
      * @return string
      */
-    public function getConfigPaymentAction() {
+    public function getConfigPaymentAction()
+    {
         return self::ACTION_ORDER;
     }
 
@@ -127,7 +151,9 @@ class Addi extends AbstractMethod
      * @return Addi
      * @throws LocalizedException
      */
-    public function initialize($paymentAction, $stateObject) {
+    // @codingStandardsIgnoreLine
+    public function initialize($paymentAction, $stateObject)
+    {
 
         $payment = $this->getInfoInstance();
 
@@ -136,93 +162,119 @@ class Addi extends AbstractMethod
 
         $baseUrl = $order->getStore()->getBaseUrl();
 
-        $isSandbox = $this->_scopeConfig->isSetFlag("payment/addi/sandbox");
-        $clientId = $this->_scopeConfig->getValue("payment/addi/client_id");
-        $clientSecret = $this->_scopeConfig->getValue("payment/addi/client_secret");
-        $successPage = $this->_scopeConfig->getValue("payment/addi/success_page");
+        $isSandbox = $this->_scopeConfig->isSetFlag("payment/addi/credentials/sandbox");
+        $clientId = $this->_scopeConfig->getValue("payment/addi/credentials/client_id");
+        $clientSecret = $this->_scopeConfig->getValue("payment/addi/credentials/client_secret");
+        $successPage = $this->_scopeConfig->getValue("payment/addi/credentials/success_page");
+        $country = $this->_scopeConfig->getValue("payment/addi/credentials/country");
 
-        if ( $successPage == "" ) {
+        $logFile = $this->_fileSystem->getDirectoryWrite(DirectoryList::VAR_DIR)->getAbsolutePath();
+
+
+        if ($successPage == "" ) {
             $successPage = $baseUrl;
         }
 
         try{
-            $documentNumber = trim($this->checkSession->getDocumentNumber());
+            $documentNumber = trim($this->_checkSession->getDocumentNumber());
 
             $addi = new AddiLib(
                 $order->getIncrementId(),
-                "Addi Payment",
+                "Addi Magento 2 Payment",
                 $clientId,
                 $clientSecret,
+                $country,
                 $isSandbox,
                 '', // agregar la imagen de magento
                 $baseUrl."addi/callback/index",
                 $baseUrl."addi/redirect/index",
                 '',
-                '');
+                ''
+            );
 
-            $addi->setAmountDetails($order->getGrandTotal(),$order->getShippingAmount(),$order->getTaxAmount(),$order->getOrderCurrencyCode());
+            $addi->setDebugMode(true);
+            $addi->setDestinationLogFile($logFile.'log/addi.log');
+
+            $addi->setAmountDetails(
+                $order->getGrandTotal(),
+                $order->getShippingAmount(),
+                $order->getTaxAmount(),
+                $order->getOrderCurrencyCode()
+            );
 
             /** @var \Magento\Sales\Model\Order\Item $item */
-            foreach($order->getAllVisibleItems() as $item){
-                /* TODO set picture URL , category name */
+            foreach ($order->getAllVisibleItems() as $item) {
                 $imageURL = $this->_addiHelper->getImage($item->getProduct());
                 $categoryName = $this->_addiHelper->getCategoryName($item->getProduct()->getCategoryIds());
-                $addi->addNewItem($item->getSku(),$item->getName(),$item->getQtyOrdered(),$item->getPrice(),$item->getTaxAmount(),$imageURL,$categoryName);
+                $addi->addNewItem(
+                    $item->getSku(),
+                    $item->getName(),
+                    $item->getQtyOrdered(),
+                    $item->getPrice(),
+                    $item->getTaxAmount(),
+                    $imageURL,
+                    $categoryName
+                );
             }
 
             $telephone = "";
-            $countryId = "CO";
+            $countryId = $country;
 
-            if($order->getShippingAddress()){
+            if ($order->getShippingAddress()) {
                 $telephone = $order->getShippingAddress()->getTelephone();
-            }elseif($order->getBillingAddress()){
+            } elseif ($order->getBillingAddress()) {
                 $telephone = $order->getBillingAddress()->getTelephone();
                 $countryId = $order->getBillingAddress()->getCountryId();
             }
 
+            $idType = ($country=='CO')?'CC':'CPF';
+
             $addi->setCustomerData(
-                'CC',
+                $idType,
                 $documentNumber,
                 $order->getCustomerFirstname(),
                 $order->getCustomerLastname(),
                 $order->getCustomerEmail(),
-                $telephone,
-                $this->_addiHelper->getPhoneCode($countryId));
+                $this->onlyNumbers($telephone),
+                $this->_addiHelper->getPhoneCode($countryId)
+            );
 
             // shipping information
-            if(!$order->getIsVirtual()){
+            if (!$order->getIsVirtual()) {
                 $addi->setShippingAddress(
-                    implode(" ",$order->getShippingAddress()->getStreet()),
+                    implode(" ", $order->getShippingAddress()->getStreet()),
                     $order->getShippingAddress()->getCity(),
-                    $order->getShippingAddress()->getCountryId());
-
-            }else{
-                if($order->getBillingAddress()){
+                    $order->getShippingAddress()->getCountryId()
+                );
+            } else {
+                if ($order->getBillingAddress()) {
                     $addi->setShippingAddress(
-                        implode(" ",$order->getBillingAddress()->getStreet()),
+                        implode(" ", $order->getBillingAddress()->getStreet()),
                         $order->getBillingAddress()->getCity(),
-                        $order->getBillingAddress()->getCountryId());
-                }else{
+                        $order->getBillingAddress()->getCountryId()
+                    );
+                } else {
                     // if dont have both address
-                    $addi->setShippingAddress("virtual product without address","virtual product","CO");
+                    $addi->setShippingAddress("virtual product without address", "virtual product", $countryId);
                 }
             }
 
             // billing information
-            if($order->getBillingAddress()){
+            if ($order->getBillingAddress()) {
                 $addi->setBillingAddress(
-                    implode(" ",$order->getBillingAddress()->getStreet()),
+                    implode(" ", $order->getBillingAddress()->getStreet()),
                     $order->getBillingAddress()->getCity(),
-                    $order->getBillingAddress()->getCountryId());
-            }else{
-                $addi->setBillingAddress("virtual product without address","virtual product","CO");
+                    $order->getBillingAddress()->getCountryId()
+                );
+            } else {
+                $addi->setBillingAddress("virtual product without address", "virtual product", $countryId);
             }
 
-            $this->logger(print_r($addi->makeJSONArray(),true));
+            $this->logger(json_encode($addi->makeJSONArray()));
 
             $payURL = $addi->getPayURL();
 
-            if(empty($payURL)){
+            if (empty($payURL)) {
                 throw new LocalizedException(__("Ocurrio un error al generar la redirección hacia el portal de Addi."));
             }
 
@@ -234,8 +286,6 @@ class Addi extends AbstractMethod
             $stateObject->setState(Order::STATE_PENDING_PAYMENT);
             $stateObject->setStatus('pending_payment');
             $stateObject->setIsNotified(false);
-
-
         }catch(Throwable $error){
                $this->logger($error->getMessage());
                throw new LocalizedException(__($error->getMessage()));
@@ -244,10 +294,16 @@ class Addi extends AbstractMethod
         return $this;
     }
 
-    public function logger($message){
+    public function logger($message)
+    {
         $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/addi.log');
         $logger = new \Zend\Log\Logger();
         $logger->addWriter($writer);
         $logger->info($message);
+    }
+
+    public function onlyNumbers($string)
+    {
+        return preg_replace("/[^0-9]/", "", $string);
     }
 }

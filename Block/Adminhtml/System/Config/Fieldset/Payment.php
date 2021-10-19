@@ -15,11 +15,11 @@ class Payment extends Fieldset
     /**
      * @var Config
      */
-    private $config;
+    protected $_config;
     /**
      * @var SecureHtmlRenderer
      */
-    private $secureRenderer;
+    protected $_secureRenderer;
 
     /**
      * @param Context            $context
@@ -35,7 +35,7 @@ class Payment extends Fieldset
         Js $jsHelper,
         Config $config,
         SecureHtmlRenderer $secureRenderer,
-        array $data = []
+        array $data = array()
     ) {
         parent::__construct(
             $context,
@@ -44,8 +44,8 @@ class Payment extends Fieldset
             $data,
             $secureRenderer
         );
-        $this->config         = $config;
-        $this->secureRenderer = $secureRenderer;
+        $this->_config         = $config;
+        $this->_secureRenderer = $secureRenderer;
     }
 
     /**
@@ -80,7 +80,7 @@ class Payment extends Fieldset
                 'Close'
             ) . '</span></button>';
 
-        $html .= /* @noEscape */ $this->secureRenderer->renderEventListenerAsTag(
+        $html .= /* @noEscape */ $this->_secureRenderer->renderEventListenerAsTag(
             'onclick',
             "AddiToggleSolution.call(this, '" . $htmlId . "', '" . $this->getUrl('adminhtml/*/state') .
             "');event.preventDefault();",
@@ -93,6 +93,7 @@ class Payment extends Fieldset
         if ($element->getComment()) {
             $html .= '<span class="heading-intro">' . $element->getComment() . '</span>';
         }
+
         $html .= '<div class="config-alt"></div>';
         $html .= '</div></div>';
 
@@ -132,6 +133,7 @@ class Payment extends Fieldset
      */
     protected function _getExtraJs($element)
     {
+        $element = '';
         $script = "require(['jquery', 'prototype'], function(jQuery){
             window.AddiToggleSolution = function (id, url) {
                 var doScroll = false;

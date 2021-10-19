@@ -1,0 +1,30 @@
+<?php
+/**
+ * @var $block Addi\Payment\Block\Product\View
+ */
+if ($block->isWidgetActive()): ?>
+    <?php if($block->getAddiCountry() == 'CO'): ?>
+        <addi-widget price="<?php
+                // @codingStandardsIgnoreLine
+                echo $block->getProduct()->getPriceInfo()->getPrice('final_price')->getAmount()->getValue();
+            ?>"
+            ally-slug="magentoplugin-ecommerce"
+            custom-widget-styles='<?php
+                // @codingStandardsIgnoreLine
+                echo $block->getStyles();
+            ?>'>
+        </addi-widget>
+    <?php else: ?>
+        <addi-widget-br
+            price="<?php
+                // @codingStandardsIgnoreLine
+                echo $block->getProduct()->getPriceInfo()->getPrice('final_price')->getAmount()->getValue();
+            ?>"
+            ally-slug="magentoplugin-ecommerce"
+            custom-widget-styles='<?php
+                // @codingStandardsIgnoreLine
+                echo $block->getStyles();
+            ?>'>
+        </addi-widget-br>
+    <?php endif; ?>
+<?php endif; ?>
