@@ -1,8 +1,9 @@
 {
     "name": "addi/magento2-payment",
-    "description": "",
+    "description": "Magento 2 Payment Module",
     "type": "magento2-module",
     "license": "proprietary",
+    "version": "1.0.0",
     "authors": [
         {
             "name": "Diego Velazquez",
