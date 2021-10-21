@@ -10,5 +10,11 @@
             "email": "diegovelazquez@wolfsellers.com"
         }
     ],
-    "minimum-stability": "dev"
+    "minimum-stability": "stable",
+    "autoload": {
+        "files": [ "registration.php" ],
+        "psr-4": {
+            "Addi\\Payment\\": ""
+        }
+    }
 }
