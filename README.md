@@ -6,7 +6,7 @@ Pasarela de Pagos de Addi para Magento 2.
 ## Instalación
 
 ```bash    
-composer require addi/magento2-payment: 1.0.*
+composer require addi/magento2-payment:1.0.*
 php bin/magento module:enable addi_Payment --clear-static-content
 php bin/magento setup:upgrade
 php bin/magento cache:clean
