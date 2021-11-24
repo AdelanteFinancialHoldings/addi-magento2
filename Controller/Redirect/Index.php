@@ -61,6 +61,8 @@ class Index extends AbstractAddi
                 $timeWaiting+= 5;
             } while ($timeWaiting < self::TIMEOUT);
 
+            $order = $this->reloadOrder($order->getId());
+
             if ($order->getStatus() == 'processing') {
                 $this->_checkSession->setLastSuccessQuoteId($order->getQuoteId());
                 $this->_checkSession->setLastQuoteId($order->getQuoteId());
@@ -91,6 +93,15 @@ class Index extends AbstractAddi
         }
 
         return false;
+    }
+
+    /**
+     * @param $orderId
+     * @return Order
+     */
+    public function reloadOrder($orderId)
+    {
+        return $this->orderFactory->create()->load($orderId);
     }
 
     /**

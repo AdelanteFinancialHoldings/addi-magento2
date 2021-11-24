@@ -17,10 +17,7 @@ use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\Order\PaymentFactory;
 use Magento\Sales\Model\OrderFactory;
 use Psr\Log\LoggerInterface;
-use Magento\Framework\App\CsrfAwareActionInterface;
-use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\RequestInterface;
-use Magento\Framework\App\Request\InvalidRequestException;
 use Addi\Payment\Helper\AddiHelper;
 use Magento\Quote\Api\CartManagementInterface;
 use Magento\Checkout\Model\Session;
@@ -28,7 +25,7 @@ use Magento\Framework\Phrase;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 
 
-class Index extends Action implements CsrfAwareActionInterface, HttpPostActionInterface
+class Post extends Action
 {
     /**
      * @var JsonFactory
