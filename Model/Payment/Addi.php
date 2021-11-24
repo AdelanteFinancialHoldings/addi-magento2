@@ -155,6 +155,7 @@ class Addi extends AbstractMethod
     public function initialize($paymentAction, $stateObject)
     {
 
+        $callbackURL = '';
         $payment = $this->getInfoInstance();
 
         /** @var Order $order */
@@ -168,8 +169,15 @@ class Addi extends AbstractMethod
         $successPage = $this->_scopeConfig->getValue("payment/addi/credentials/success_page");
         $country = $this->_scopeConfig->getValue("payment/addi/credentials/country");
 
+
         $logFile = $this->_fileSystem->getDirectoryWrite(DirectoryList::VAR_DIR)->getAbsolutePath();
 
+        /*callback controller compatibility with 2.2 version */
+        if ( strpos($this->_productMetadata->getVersion(), '2.2') !== false ) {
+            $callbackURL = $baseUrl."addi/callback/post";
+        } else {
+            $callbackURL = $baseUrl."addi/callback/index";
+        }
 
         if ($successPage == "" ) {
             $successPage = $baseUrl;
@@ -186,7 +194,7 @@ class Addi extends AbstractMethod
                 $country,
                 $isSandbox,
                 '', // agregar la imagen de magento
-                $baseUrl."addi/callback/index",
+                $callbackURL,
                 $baseUrl."addi/redirect/index",
                 '',
                 ''

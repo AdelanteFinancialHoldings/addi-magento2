@@ -20,7 +20,7 @@ class Addi
     const URL_SANDBOX_CO = "https://api.addi-staging.com/";
 
     //BRAZIL
-    const URL_PRODUCTION_BR = "https://api.addi.com.br";
+    const URL_PRODUCTION_BR = "https://api.addi.com.br/";
     const URL_AUTH_PRODUCTION_BR = "https://auth.addi.com.br/";
     const URL_AUTH_SANDBOX_BR = "https://auth.addi-staging-br.com/";
     const URL_AUTH_DOMAIN_SANDBOX_BR = "https://api.addi.com.br";
@@ -140,9 +140,9 @@ class Addi
             }
         } else {
             if ($this->getCountry() == 'CO') {
-                $this->setAudience(self::URL_PRODUCTION_CO);
+                $this->setAudience(trim(self::URL_PRODUCTION_CO, "/"));
             } elseif ($this->getCountry() == 'BR') {
-                $this->setAudience(self::URL_PRODUCTION_BR);
+                $this->setAudience(trim(self::URL_PRODUCTION_BR, "/"));
             }
         }
     }

@@ -3,14 +3,12 @@
     "description": "Magento 2 Payment Module",
     "type": "magento2-module",
     "license": "proprietary",
-    "version": "1.0.1",
-    "authors": [
-        {
-            "name": "Diego Velazquez",
-            "email": "diegovelazquez@wolfsellers.com"
-        }
-    ],
+    "version": "1.0.2",
     "minimum-stability": "stable",
+    "prefer-stable": true,
+    "require": {
+        "laminas/laminas-log": "*"
+    },
     "autoload": {
         "files": [ "registration.php" ],
         "psr-4": {

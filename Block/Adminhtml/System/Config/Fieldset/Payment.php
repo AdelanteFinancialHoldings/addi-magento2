@@ -8,7 +8,6 @@ use Magento\Config\Block\System\Config\Form\Fieldset;
 use Magento\Config\Model\Config;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\View\Helper\Js;
-use Magento\Framework\View\Helper\SecureHtmlRenderer;
 
 class Payment extends Fieldset
 {
@@ -16,10 +15,6 @@ class Payment extends Fieldset
      * @var Config
      */
     protected $_config;
-    /**
-     * @var SecureHtmlRenderer
-     */
-    protected $_secureRenderer;
 
     /**
      * @param Context            $context
@@ -27,25 +22,21 @@ class Payment extends Fieldset
      * @param Js                 $jsHelper
      * @param Config             $config
      * @param array              $data
-     * @param SecureHtmlRenderer $secureRenderer
      */
     public function __construct(
         Context $context,
         Session $authSession,
         Js $jsHelper,
         Config $config,
-        SecureHtmlRenderer $secureRenderer,
         array $data = array()
     ) {
         parent::__construct(
             $context,
             $authSession,
             $jsHelper,
-            $data,
-            $secureRenderer
+            $data
         );
         $this->_config         = $config;
-        $this->_secureRenderer = $secureRenderer;
     }
 
     /**
@@ -68,24 +59,40 @@ class Payment extends Fieldset
     protected function _getHeaderTitleHtml($element)
     {
         $html = '<div class="config-heading" >';
+
+        $groupConfig = $element->getGroup();
+
+        $disabledAttributeString = $this->_isPaymentEnabled($element) ? '' : ' disabled="disabled"';
+        $disabledClassString = $this->_isPaymentEnabled($element) ? '' : ' disabled';
         $htmlId = $element->getHtmlId();
         $html .= '<div class="button-container"><button type="button"' .
-            ' disabled="disabled"' .
+            $disabledAttributeString .
             ' class="button action-configure' .
-            ' disabled' .
-            '" id="' . $htmlId . '-head" >' .
-            '<span class="state-closed">' . __(
+            (empty($groupConfig['paypal_ec_separate']) ? '' : ' paypal-ec-separate') .
+            $disabledClassString .
+            '" id="' .
+            $htmlId .
+            '-head" onclick="paypalToggleSolution.call(this, \'' .
+            $htmlId .
+            "', '" .
+            $this->getUrl(
+                'adminhtml/*/state'
+            ) . '\'); return false;"><span class="state-closed">' . __(
                 'Configure'
             ) . '</span><span class="state-opened">' . __(
                 'Close'
             ) . '</span></button>';
 
-        $html .= /* @noEscape */ $this->_secureRenderer->renderEventListenerAsTag(
-            'onclick',
-            "AddiToggleSolution.call(this, '" . $htmlId . "', '" . $this->getUrl('adminhtml/*/state') .
-            "');event.preventDefault();",
-            'button#' . $htmlId . '-head'
-        );
+        if (!empty($groupConfig['more_url'])) {
+            $html .= '<a class="link-more" href="' . $groupConfig['more_url'] . '" target="_blank">' . __(
+                    'Learn More'
+                ) . '</a>';
+        }
+        if (!empty($groupConfig['demo_url'])) {
+            $html .= '<a class="link-demo" href="' . $groupConfig['demo_url'] . '" target="_blank">' . __(
+                    'View Demo'
+                ) . '</a>';
+        }
 
         $html .= '</div>';
         $html .= '<div class="heading"><strong>' . $element->getLegend() . '</strong>';
@@ -93,7 +100,6 @@ class Payment extends Fieldset
         if ($element->getComment()) {
             $html .= '<span class="heading-intro">' . $element->getComment() . '</span>';
         }
-
         $html .= '<div class="config-alt"></div>';
         $html .= '</div></div>';
 
@@ -154,5 +160,29 @@ class Payment extends Fieldset
         });";
 
         return $this->_jsHelper->getScript($script);
+    }
+
+    /**
+     * Check whether current payment method is enabled
+     *
+     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @return bool
+     */
+    protected function _isPaymentEnabled($element)
+    {
+        $groupConfig = $element->getGroup();
+        $activityPaths = isset($groupConfig['activity_path']) ? $groupConfig['activity_path'] : [];
+
+        if (!is_array($activityPaths)) {
+            $activityPaths = [$activityPaths];
+        }
+
+        $isPaymentEnabled = false;
+        foreach ($activityPaths as $activityPath) {
+            $isPaymentEnabled = $isPaymentEnabled
+                || (bool)(string)$this->_backendConfig->getConfigDataValue($activityPath);
+        }
+
+        return $isPaymentEnabled;
     }
 }
