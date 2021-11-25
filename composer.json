@@ -3,7 +3,7 @@
     "description": "Magento 2 Payment Module",
     "type": "magento2-module",
     "license": "proprietary",
-    "version": "1.0.2",
+    "version": "1.0.3.0",
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
