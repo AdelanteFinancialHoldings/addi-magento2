@@ -23,6 +23,7 @@ use Addi\Payment\Helper\AddiHelper;
 use Throwable;
 use Magento\Framework\Filesystem;
 use Magento\Framework\App\Filesystem\DirectoryList;
+use Addi\Payment\Logger\Logger as AddiLogger;
 
 class Addi extends AbstractMethod
 {
@@ -67,6 +68,13 @@ class Addi extends AbstractMethod
      */
     protected $_fileSystem;
 
+    /**
+     * @var AddiLogger
+     */
+    protected $_addiLogger;
+
+
+
     public function __construct(
         Filesystem $fileSystem,
         CheckoutSession $checkSession,
@@ -78,6 +86,7 @@ class Addi extends AbstractMethod
         AttributeValueFactory $customAttributeFactory,
         Data $paymentData,
         ScopeConfigInterface $scopeConfig,
+        AddiLogger $addiLogger,
         Logger $logger,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
@@ -93,6 +102,7 @@ class Addi extends AbstractMethod
         $this->_checkSession = $checkSession;
         $this->_addiHelper = $addiHelper;
         $this->_fileSystem = $fileSystem;
+        $this->_addiLogger = $addiLogger;
     }
 
 
@@ -173,7 +183,7 @@ class Addi extends AbstractMethod
         $logFile = $this->_fileSystem->getDirectoryWrite(DirectoryList::VAR_DIR)->getAbsolutePath();
 
         /*callback controller compatibility with 2.2 version */
-        if ( strpos($this->_productMetadata->getVersion(), '2.2') !== false ) {
+        if (strpos($this->_productMetadata->getVersion(), '2.2') !== false) {
             $callbackURL = $baseUrl."addi/callback/post";
         } else {
             $callbackURL = $baseUrl."addi/callback/index";
@@ -304,10 +314,7 @@ class Addi extends AbstractMethod
 
     public function logger($message)
     {
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/addi.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info($message);
+        $this->_addiLogger->info($message);
     }
 
     public function onlyNumbers($string)

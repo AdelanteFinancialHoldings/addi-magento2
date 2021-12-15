@@ -23,25 +23,30 @@ use Magento\Quote\Api\CartManagementInterface;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Phrase;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
+use Addi\Payment\Logger\Logger as AddiLogger;
 
 
 class Post extends Action
 {
     /**
+     * @var AddiLogger
+     */
+    protected $_addiLogger;
+
+    /**
      * @var JsonFactory
      */
+
     protected $_resultJsonFactory;
     /**
      * @var ScopeConfigInterface
      */
+
     protected $_scopeConfig;
-    /**
-     * @var LoggerInterface
-     */
-    protected $_logger;
     /**
      * @var OrderFactory
      */
+
     protected $_orderFactory;
     /**
      * @var PaymentFactory
@@ -68,7 +73,6 @@ class Post extends Action
      * @param PaymentFactory $paymentFactory
      * @param JsonFactory $resultJsonFactory
      * @param ScopeConfigInterface $scopeConfig
-     * @param LoggerInterface $logger
      * @param Context $context
      */
     public function __construct(
@@ -77,22 +81,22 @@ class Post extends Action
         PaymentFactory $paymentFactory,
         JsonFactory $resultJsonFactory,
         ScopeConfigInterface $scopeConfig,
-        LoggerInterface $logger,
         CartManagementInterface $cartManagement,
         Session $checSession,
         OrderSender $orderSender,
-        Context $context
+        Context $context,
+        AddiLogger $addiLogger
 ) {
         parent::__construct($context);
         $this->_resultJsonFactory = $resultJsonFactory;
         $this->_scopeConfig = $scopeConfig;
-        $this->_logger = $logger;
         $this->_orderFactory = $orderFactory;
         $this->_paymentFactory = $paymentFactory;
         $this->_addiHelper = $addiHelper;
         $this->_cartManagement = $cartManagement;
         $this->_orderSender = $orderSender;
         $this->_checSession = $checSession;
+        $this->_addiLogger = $addiLogger;
     }
 
 
@@ -108,7 +112,7 @@ class Post extends Action
             if (strpos(strtolower($authenticationHeader), 'basic') !== 0 ||
                 substr($authenticationHeader, 6) != $this->getAuth()) {
                 http_response_code(401);
-                exit(0);
+                exit(0); // @codingStandardsIgnoreLine
             }
 
             $request = $this->getRequest()->getContent();
@@ -227,10 +231,7 @@ class Post extends Action
 
     public function logger($message)
     {
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/addi.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info($message);
+        $this->_addiLogger->info($message);
     }
 
     /**

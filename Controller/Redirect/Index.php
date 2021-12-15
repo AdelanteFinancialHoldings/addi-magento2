@@ -11,6 +11,7 @@ use Magento\Framework\Url\Helper\Data as UrlHelper;
 use Magento\Sales\Model\OrderFactory;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Sales\Model\Order;
+use Addi\Payment\Logger\Logger as AddiLogger;
 
 class Index extends AbstractAddi
 {
@@ -21,13 +22,20 @@ class Index extends AbstractAddi
      */
     protected $_checkSession;
 
+    /**
+     * @var AddiLogger
+     */
+    protected $_addiLogger;
+
     public function __construct(
         UrlHelper $urlHelper,
         OrderFactory $orderFactory,
         Context $context,
-        CheckoutSession $checkSession
+        CheckoutSession $checkSession,
+        AddiLogger $addiLogger
     ) {
         $this->_checkSession = $checkSession;
+        $this->_addiLogger = $addiLogger;
         parent::__construct($urlHelper, $orderFactory, $context);
     }
 
@@ -127,10 +135,7 @@ class Index extends AbstractAddi
 
     public function logger($message)
     {
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/addi.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info($message);
+        $this->_addiLogger->info($message);
     }
 
 }

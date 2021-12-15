@@ -84,12 +84,15 @@ class Payment extends Fieldset
             ) . '</span></button>';
 
         if (!empty($groupConfig['more_url'])) {
-            $html .= '<a class="link-more" href="' . $groupConfig['more_url'] . '" target="_blank">' . __(
+            $html .= '<a class="link-more" href="' . $groupConfig['more_url'] . '" target="_blank">'
+                . __(
                     'Learn More'
                 ) . '</a>';
         }
+
         if (!empty($groupConfig['demo_url'])) {
-            $html .= '<a class="link-demo" href="' . $groupConfig['demo_url'] . '" target="_blank">' . __(
+            $html .= '<a class="link-demo" href="' . $groupConfig['demo_url'] . '" target="_blank">'
+                . __(
                     'View Demo'
                 ) . '</a>';
         }
@@ -100,6 +103,7 @@ class Payment extends Fieldset
         if ($element->getComment()) {
             $html .= '<span class="heading-intro">' . $element->getComment() . '</span>';
         }
+
         $html .= '<div class="config-alt"></div>';
         $html .= '</div></div>';
 
@@ -171,10 +175,10 @@ class Payment extends Fieldset
     protected function _isPaymentEnabled($element)
     {
         $groupConfig = $element->getGroup();
-        $activityPaths = isset($groupConfig['activity_path']) ? $groupConfig['activity_path'] : [];
+        $activityPaths = isset($groupConfig['activity_path']) ? $groupConfig['activity_path'] : array();
 
         if (!is_array($activityPaths)) {
-            $activityPaths = [$activityPaths];
+            $activityPaths = array($activityPaths);
         }
 
         $isPaymentEnabled = false;

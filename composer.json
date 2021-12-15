@@ -3,12 +3,9 @@
     "description": "Magento 2 Payment Module",
     "type": "magento2-module",
     "license": "proprietary",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "minimum-stability": "stable",
     "prefer-stable": true,
-    "require": {
-        "laminas/laminas-log": "*"
-    },
     "autoload": {
         "files": [ "registration.php" ],
         "psr-4": {
