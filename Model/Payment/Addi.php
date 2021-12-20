@@ -173,11 +173,11 @@ class Addi extends AbstractMethod
 
         $baseUrl = $order->getStore()->getBaseUrl();
 
-        $isSandbox = $this->_scopeConfig->isSetFlag("payment/addi/credentials/sandbox");
-        $clientId = $this->_scopeConfig->getValue("payment/addi/credentials/client_id");
-        $clientSecret = $this->_scopeConfig->getValue("payment/addi/credentials/client_secret");
-        $successPage = $this->_scopeConfig->getValue("payment/addi/credentials/success_page");
-        $country = $this->_scopeConfig->getValue("payment/addi/credentials/country");
+        $isSandbox = boolval($this->getConfigData("credentials/sandbox"));
+        $clientId = $this->getConfigData("credentials/client_id");
+        $clientSecret = $this->getConfigData("credentials/client_secret");
+        $successPage = $this->getConfigData("credentials/success_page");
+        $country = $this->getConfigData("credentials/country");
 
 
         $logFile = $this->_fileSystem->getDirectoryWrite(DirectoryList::VAR_DIR)->getAbsolutePath();
