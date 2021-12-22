@@ -111,6 +111,10 @@ class Post extends Action
 
             if (strpos(strtolower($authenticationHeader), 'basic') !== 0 ||
                 substr($authenticationHeader, 6) != $this->getAuth()) {
+                $this->logger(
+                    "ADDI CALLBACK ERROR: Authorization Basic Error 401 Unauthorized ".
+                    $authenticationHeader
+                );
                 http_response_code(401);
                 exit(0); // @codingStandardsIgnoreLine
             }

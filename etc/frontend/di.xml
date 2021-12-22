@@ -16,4 +16,8 @@
     <type name="Magento\Framework\App\Request\CsrfValidator">
         <plugin name="addi_csrfvalidator" type="Addi\Payment\Plugin\App\Request\CsrfValidator" sortOrder="1" disabled="false" />
     </type>
+
+    <type name="Magento\Checkout\Controller\Onepage\Success">
+        <plugin name="addi_success_redirect" type="Addi\Payment\Plugin\Redirect\RedirectPlugin" sortOrder="1" disabled="false" />
+    </type>
 </config>

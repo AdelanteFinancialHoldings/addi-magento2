@@ -1,7 +1,0 @@
-<?php
-/** @var \Addi\Payment\Block\Addi $block */
-$order = $block->getOrder();
-if ($order && $order->getAddiUrl()) {
-    return $block->http->setRedirect($order->getAddiUrl());
-}
-
