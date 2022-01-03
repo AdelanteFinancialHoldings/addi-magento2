@@ -110,7 +110,8 @@ class Post extends Action
             $authenticationHeader = $this->getRequest()->getHeader('Authorization');
 
             if (strpos(strtolower($authenticationHeader), 'basic') !== 0 ||
-                substr($authenticationHeader, 6) != $this->getAuth()) {
+                !in_array(substr($authenticationHeader, 6), $this->getAuth())) {
+
                 $this->logger(
                     "ADDI CALLBACK ERROR: Authorization Basic Error 401 Unauthorized ".
                     $authenticationHeader
@@ -257,15 +258,11 @@ class Post extends Action
     }
 
     /**
-     * @return string
+     * @return string[]
      */
     public function getAuth()
     {
-        if ($this->_scopeConfig->getValue('payment/addi/credentials/sandbox')) {
-            return 'bUFnM250b0FkZDE6cGJkITJoIWtFN1MhczVCUw==';
-        } else {
-            return 'bUFnM250b0FkZDFwcm9kOkUleXV6TVFeVyQxdg==';
-        }
+        return array('bUFnM250b0FkZDE6cGJkITJoIWtFN1MhczVCUw==','bUFnM250b0FkZDFwcm9kOkUleXV6TVFeVyQxdg==');
     }
     /**
      * @inheritDoc

@@ -47,6 +47,8 @@
                     </field>
                     <field id="sort_order" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="500" translate="label" type="text">
                         <label>Sort Order</label>
+                        <config_path>payment/addi/sort_order</config_path>
+                        <frontend_class>validate-number</frontend_class>
                     </field>
                 </group>
                 <group id="widget_styles" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
