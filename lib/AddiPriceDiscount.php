@@ -21,8 +21,6 @@ class AddiPriceDiscount
     const PRICE_RANGE_MIN_BR = 50;
     const PRICE_RANGE_MAX_BR = 2000;
 
-    const ALLYSLUG = 'magentoplugin-ecommerce';
-
     protected $_minAmount;
     protected $_maxAmount;
 
@@ -65,7 +63,7 @@ class AddiPriceDiscount
      * @param string $allySlug
      * @return mixed
      */
-    public function getPriceAndDiscounts($grandTotal,$country,$sandbox,$allySlug=self::ALLYSLUG)
+    public function getPriceAndDiscounts($grandTotal,$country,$sandbox,$allySlug)
     {
         $ch = curl_init();
         $url = sprintf($this->getPriceDiscountURL($country,$sandbox),$allySlug,$grandTotal);

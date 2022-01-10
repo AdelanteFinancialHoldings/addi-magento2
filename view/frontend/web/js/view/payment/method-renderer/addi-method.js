@@ -35,11 +35,15 @@ define(
             getAddiDiscount: function () {
                 return window.checkoutConfig.payment.addi.discount;
             },
+            getLabel: function () {
+                return window.checkoutConfig.payment.addi.label;
+            },
             showDiscountLabel:function(){
                 return (parseInt(window.checkoutConfig.payment.addi.discount)>0);
             },
             getLabelDiscount: function () {
-                return $.mage.__('%1% discount').replace('%1', this.getAddiDiscount());
+                let label = window.checkoutConfig.payment.addi.label_discount;
+                return label.replace('%1', this.getAddiDiscount());
             },
             /**
              * @return {Object}

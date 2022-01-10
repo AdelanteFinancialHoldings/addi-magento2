@@ -42,8 +42,12 @@
                     <field id="client_id" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="90" translate="label" type="password">
                         <label>Client Id</label>
                     </field>
-                    <field id="client_secret" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="90" translate="label" type="password">
+                    <field id="client_secret" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="100" translate="label" type="password">
                         <label>Client Secret</label>
+                    </field>
+                    <field id="ally_slug" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="100" translate="label" type="text">
+                        <label>Ally Slug</label>
+                        <frontend_class>validate-required</frontend_class>
                     </field>
                     <field id="sort_order" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="500" translate="label" type="text">
                         <label>Sort Order</label>

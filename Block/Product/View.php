@@ -15,9 +15,20 @@ class View extends ProductView
         return $this->getConfig("payment/addi/credentials/country");
     }
 
+    /**
+     * @return bool
+     */
     public function isWidgetActive()
     {
         return boolval($this->getConfig("payment/addi/widget_styles/widget_active"));
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAllySlug()
+    {
+        return $this->getConfig("payment/addi/credentials/ally_slug");
     }
 
     public function getStyles()

@@ -11,7 +11,7 @@
                class="radio"
                data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
         <label data-bind="attr: {'for': getCode()}" class="label addi-label">
-            <img data-bind="attr: { src: getImage() }" alt="" style="max-width: 10%;"><!-- ko i18n: 'Pay later with Addi'--><!-- /ko -->
+            <img data-bind="attr: { src: getImage() }" alt="" style="max-width: 10%;"><span data-bind="text: getLabel()"></span>
             <!-- ko if: showDiscountLabel() -->
             <div data-bind="html: getLabelDiscount()"></div>
             <!-- /ko -->

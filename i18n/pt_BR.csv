@@ -22,3 +22,7 @@
 "The payment process with Addi was not completed correctly.","El proceso de pago con Addi no fue concluido correctamente.",module,Addi_Payment,1
 "Country","País",module,Addi_Payment,1
 "%1% discount","%1% de desconto",module,Addi_Payment,1
+"After Click ""Place Order"" Button you will redirect to Addi.","Después de hacer clic en ""Place order"" será redirigido a Addi.",module,Addi_Payment,1
+"Pay Later with Addi.","Pague com PIX e adiante sua vida!",module,Addi_Payment,1
+"Is simple and fast","Es fácil, rápido y seguro",module,Addi_Payment,1
+"No credit card needed and in minutes","Sin tarjetas de crédito y en minutos",module,Addi_Payment,1

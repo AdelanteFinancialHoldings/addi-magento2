@@ -1,30 +1,152 @@
+.checkout-index-index .message.global.cookie{
+    z-index: 9;
+}
+
 .addi-method label.addi-label span{
     width: 100%;
-    float: left;
+    float: initial;
     margin-left: 20px;
-    margin-bottom: 15px
+    margin-bottom: 15px;
+    font-size: 16px;
+    color: #0a1b41;
+    font-weight: bold;
 }
+
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
 .addi-method{
     padding-bottom: 15px;
 }
 .addi-method img{
-    min-width: 100px;
+    min-width: 90px;
+    vertical-align: middle;
 }
 .addi-method label{
     position: relative;
 }
 .addi-method label div{
-    position: absolute;
-    top: -20px;
-    right: -120px;
     background: #4cbd99;
     padding: 5px;
     color: #fff;
-    border-radius: 5px;
+    border-radius: 15px;
+    width: 140px;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.addi-container{
+    float: left;
+    border: 1px solid #a3a3a3a3;
+    border-radius: 7px;
+    max-width: 450px;
+    width: 100%;
+    margin-top: 20px;
+    background-image: url("../images/back1.png");
+    background-size: cover;
+    background-position: bottom;
+}
+.addi-container .header{
+    background: #0a1b41;
+    color: #ffffff;
+    padding: 10px;
+    border-radius: 7px 7px 0px 0px;
+    padding-left: 20px;
+}
+
+.addi-container .logo{
+    margin-top: 20px;
+    padding-left: 15px;
+    align-items: center;
+    margin-right: 0;
+}
+
+.addi-container .logo img{
+    width: 100px;
+    padding-right: 25px;
+}
+
+.addi-container .simple {
+    width: 100%;
+    float: left;
+    padding-left: 20px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.addi-container .description-addi {
+    width: 100%;
+    float: left;
+}
+
+.addi-container .description-addi .description {
+    width: 90%;
+    margin: auto;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    border: 1px solid #a3a3a3a3;
+    border-radius: 7px;
+    padding: 5px;
+    background: #fff;
+}
+.addi-container .description-addi ul{
+    list-style-type: initial;
+}
+
+.addi-container .payment-latter {
+    position: relative;
+}
+
+.addi-container .payment-latter:before{
+    content: '';
+    width: 1px;
+    height: 37px;
+    position: absolute;
+    left: -11px;
+    top: -11px;
+    background: #4e7eff;
+}
+
+fieldset#payment_form_addi {
+    float: left;
+    width: 100%;
+    margin-top: 30px;
+}
+
+.cpf {
+    float: left;
+    width: 100%;
+    padding-left: 15px;
+    margin-bottom: 20px;
+    margin-top: 10px;
+    font-style: italic;
+    color: #838383;
 }
 
 @media screen and (max-width:  767px){
     .payment-method.addi-method .payment-method-content .messages{
         margin-top: 20px;
+    }
+    .addi-method label.addi-label span{
+        font-size: 14px;
+    }
+}
+
+@media screen and (max-width:  440px){
+    .addi-container{
+        background-image: url(../images/back2.png);
+        background-position: bottom;
+        background-repeat: no-repeat;
+    }
+    .addi-container .payment-latter:before {
+        content: '';
+        width: 1px;
+        height: 37px;
+        position: absolute;
+        left: -11px;
+        top: 0px;
+        background: #4e7eff;
     }
 }

@@ -2,13 +2,16 @@
 /**
  * @var $block Addi\Payment\Block\Product\View
  */
+
+$allySlug = $block->getAllySlug();
+
 if ($block->isWidgetActive()): ?>
     <?php if($block->getAddiCountry() == 'CO'): ?>
         <addi-widget price="<?php
                 // @codingStandardsIgnoreLine
                 echo $block->getProduct()->getPriceInfo()->getPrice('final_price')->getAmount()->getValue();
             ?>"
-            ally-slug="magentoplugin-ecommerce"
+            ally-slug="<?= $allySlug ?>"
             custom-widget-styles='<?php
                 // @codingStandardsIgnoreLine
                 echo $block->getStyles();
@@ -20,7 +23,7 @@ if ($block->isWidgetActive()): ?>
                 // @codingStandardsIgnoreLine
                 echo $block->getProduct()->getPriceInfo()->getPrice('final_price')->getAmount()->getValue();
             ?>"
-            ally-slug="magentoplugin-ecommerce"
+            ally-slug="<?= $allySlug ?>"
             custom-widget-styles='<?php
                 // @codingStandardsIgnoreLine
                 echo $block->getStyles();

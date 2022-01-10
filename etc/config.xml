@@ -17,6 +17,7 @@
                     <grant_type>client_credentials</grant_type>
                     <client_id></client_id>
                     <client_secret></client_secret>
+                    <ally_slug>magentoplugin-ecommerce</ally_slug>
                     <payment_action>0</payment_action>
                 </credentials>
 

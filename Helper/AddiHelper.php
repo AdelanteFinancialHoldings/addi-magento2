@@ -5,9 +5,12 @@ use Magento\Framework\App\Helper\Context;
 use Magento\Catalog\Helper\Image;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\View\LayoutInterface;
 
 class AddiHelper extends AbstractHelper
 {
+    CONST WIDGET_VERSION_01 = 'ADDI_TEMPLATE_01';
+    CONST WIDGET_VERSION_02 = 'ADDI_TEMPLATE_02';
 
     /** @var Image */
     protected $_imageHelper;
@@ -15,15 +18,19 @@ class AddiHelper extends AbstractHelper
     /** @var CategoryRepositoryInterface */
     protected $_categoryRepository;
 
+    /** @var LayoutInterface */
+    protected $_layoutInterface;
 
     public function __construct(
         Context $context,
         Image $imageHelper,
-        CategoryRepositoryInterface $categoryRepository
+        CategoryRepositoryInterface $categoryRepository,
+        LayoutInterface $layoutInterface
     ) {
         parent::__construct($context);
         $this->_imageHelper = $imageHelper;
         $this->_categoryRepository = $categoryRepository;
+        $this->_layoutInterface = $layoutInterface;
     }
 
     /**
@@ -50,6 +57,37 @@ class AddiHelper extends AbstractHelper
                 ->resize(100, 100)->getUrl();
     }
 
+    /**
+     * @param $country
+     * @param $version
+     * @return string|void
+     */
+    public function getCheckoutTemplate($country, $version)
+    {
+        $block = $this->_layoutInterface->createBlock("Magento\Framework\View\Element\Template");
+
+        if ($country == 'CO') {
+            $block->setTemplate('Addi_Payment::Checkout/CO/default.phtml');
+            return $block->toHtml();
+        }
+
+        if ($version == self::WIDGET_VERSION_01) {
+            $block->setTemplate('Addi_Payment::Checkout/BR/bnpl.phtml');
+            return $block->toHtml();
+        } else if ($version == self::WIDGET_VERSION_02) {
+            $block->setTemplate('Addi_Payment::Checkout/BR/bnpl_bnpn.phtml');
+            return $block->toHtml();
+        }
+
+        $block->setTemplate('Addi_Payment::Checkout/BR/bnpl.phtml');
+        return $block->toHtml();
+
+    }
+
+    /**
+     * @param $code
+     * @return false|int|string
+     */
     public function getPhoneCode($code)
     {
         $countrycode = array(
