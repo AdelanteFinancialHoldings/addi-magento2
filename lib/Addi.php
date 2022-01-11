@@ -106,6 +106,9 @@ class Addi
     /** @var bool */
     protected $_debugMode=false;
 
+    /** @var array */
+    protected $_debugLog;
+
     public function __construct(
         $orderId,
         $description,
@@ -336,54 +339,58 @@ class Addi
      */
     public function getToken()
     {
-        $retry = false;
-        $timesToRetry = 0;
+        try{
+            $retry = false;
+            $timesToRetry = 0;
 
-        do {
-            $ch = curl_init();
-            $url = $this->getUrlAuth() . "oauth/token";
-            $request = json_encode($this->getAuthRequest());
+            do {
+                $ch = curl_init();
+                $url = $this->getUrlAuth() . "oauth/token";
+                $request = json_encode($this->getAuthRequest());
 
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array('content-type: application/json','accept: application/json'));
-            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-            $result = curl_exec($ch);
-            $httpcode = curl_getinfo($ch,CURLINFO_HTTP_CODE);
+                curl_setopt($ch, CURLOPT_URL, $url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array('content-type: application/json','accept: application/json'));
+                curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+                $result = curl_exec($ch);
+                $httpcode = curl_getinfo($ch,CURLINFO_HTTP_CODE);
 
-            curl_close($ch);
+                curl_close($ch);
 
-            if ($httpcode >=500 && $httpcode <= 524) {
-                $retry = true;
+                if ($httpcode >=500 && $httpcode <= 524) {
+                    $retry = true;
+                }
+
+                $this->setDebugLog(
+                    'REQUEST: endpoint: '.$url.
+                    ' request body: '.$request.
+                    ' RESPONSE: '.$result.
+                    ' HTTP CODE: '.$httpcode."\n"
+                );
+
+                $timesToRetry++;
+            } while ($retry && $timesToRetry <= self::MAX_NUMBER_RETRIES);
+
+            if ($retry && $timesToRetry >= self::MAX_NUMBER_RETRIES) {
+                throw new Exception("The maximum number of authentication attempts has been exceeded");
             }
 
-            $this->errorLog(
-                'REQUEST: endpoint: '.$url.
-                ' request body: '.$request.
-                ' RESPONSE: '.$result.
-                ' HTTP CODE: '.$httpcode."\n"
-            );
+            $response = json_decode($result,true);
 
-            $timesToRetry++;
-        } while ($retry && $timesToRetry <= self::MAX_NUMBER_RETRIES);
-
-        if ($retry && $timesToRetry >= self::MAX_NUMBER_RETRIES) {
-            throw new Exception("The maximum number of authentication attempts has been exceeded");
-        }
-
-        $response = json_decode($result,true);
-
-        if ($httpcode == 200) {
-            if (isset($response['access_token'])) {
-                return $response['access_token'];
-            } else {
-                throw new Exception("error getting token");
+            if ($httpcode == 200) {
+                if (isset($response['access_token'])) {
+                    return $response['access_token'];
+                } else {
+                    throw new Exception("error getting token");
+                }
+            } elseif ($httpcode == 401) {
+                throw new Exception("credentials error Unauthorized");
             }
-        } elseif ($httpcode == 401) {
-            throw new Exception("credentials error Unauthorized");
+        } catch (\Throwable $error){
+            $this->setDebugLog("ERROR getToken method: ".$error->getMessage());
         }
     }
 
@@ -693,59 +700,63 @@ class Addi
      */
     public function getPayURL()
     {
-        $timesToRetry = 0;
-        $retry = false;
-        $token = $this->getToken();
+        try{
+            $timesToRetry = 0;
+            $retry = false;
+            $token = $this->getToken();
 
-        do {
-            $ch = curl_init();
-            $url = $this->getUrl() . "v1/online-applications";
-            $request = json_encode($this->makeJSONArray());
+            do {
+                $ch = curl_init();
+                $url = $this->getUrl() . "v1/online-applications";
+                $request = json_encode($this->makeJSONArray());
 
-            curl_setopt($ch, CURLOPT_URL, $url);
-            //curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array('content-type: application/json',
-                                                              'authorization: bearer '.$token));
+                curl_setopt($ch, CURLOPT_URL, $url);
+                //curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array('content-type: application/json',
+                                                                  'authorization: bearer '.$token));
 
-            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-            $result = curl_exec($ch);
-            $httpcode = curl_getinfo($ch,CURLINFO_HTTP_CODE);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+                $result = curl_exec($ch);
+                $httpcode = curl_getinfo($ch,CURLINFO_HTTP_CODE);
 
-            $this->errorLog(
-                'REQUEST: endpoint: '.$url.
-                ' request body: '.$request.
-                ' RESPONSE: '.$result.
-                ' HTTP CODE: '.$httpcode."\n"
-            );
+                $this->setDebugLog(
+                    'REQUEST: endpoint: '.$url.
+                    ' REQUEST BODY: '.$request.
+                    ' RESPONSE: '.curl_getinfo($ch,CURLINFO_REDIRECT_URL).
+                    ' HTTP CODE: '.$httpcode."\n"
+                );
 
-            if ($httpcode >=500 && $httpcode <= 524) {
-                $retry = true;
+                if ($httpcode >=500 && $httpcode <= 524) {
+                    $retry = true;
+                }
+
+                $timesToRetry++;
+            } while($retry && $timesToRetry <= self::MAX_NUMBER_RETRIES);
+
+            if ($retry && $timesToRetry >= self::MAX_NUMBER_RETRIES) {
+                throw new Exception("The maximum number attempts has been exceeded");
             }
 
-            $timesToRetry++;
-        } while($retry && $timesToRetry <= self::MAX_NUMBER_RETRIES);
+            if ($httpcode == 301) {
+                $redirectURL = curl_getinfo($ch,CURLINFO_REDIRECT_URL);
+                return $redirectURL;
+            } elseif ($httpcode == 401) {
+                throw new Exception("credentials error Unauthorized");
+            } elseif ($httpcode == 400) {
+                $result = json_decode($result);
+                throw new Exception($result->message);
+            } elseif ($httpcode == 409) {
+                throw new Exception(__("The Customer already has an Addi Credit. This operation is not supported."));
+            }
 
-        if ($retry && $timesToRetry >= self::MAX_NUMBER_RETRIES) {
-            throw new Exception("The maximum number attempts has been exceeded");
+            curl_close($ch);
+        } catch (\Throwable $error){
+            $this->setDebugLog("ERROR getPayURL method: ".$error->getMessage());
         }
-
-        if ($httpcode == 301) {
-            $redirectURL = curl_getinfo($ch,CURLINFO_REDIRECT_URL);
-            return $redirectURL;
-        } elseif ($httpcode == 401) {
-            throw new Exception("credentials error Unauthorized");
-        } elseif ($httpcode == 400) {
-            $result = json_decode($result);
-            throw new Exception($result->message);
-        } elseif ($httpcode == 409) {
-            throw new Exception(__("The Customer already has an Addi Credit. This operation is not supported."));
-        }
-
-        curl_close($ch);
     }
 
     /**
@@ -780,11 +791,16 @@ class Addi
     /**
      * @param $error
      */
-    public function errorLog($error)
+    public function setDebugLog($error)
     {
-        if ($this->isActiveDebugMode() && $this->getDestinationLogFile()) {
-            error_log($error, 3, $this->getDestinationLogFile());
+        if ($this->isActiveDebugMode()) {
+            $this->_debugLog[] = $error;
         }
+    }
+
+    public function getDebugLog(){
+        return $this->_debugLog;
+
     }
 
 }

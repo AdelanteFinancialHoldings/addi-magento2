@@ -211,7 +211,6 @@ class Addi extends AbstractMethod
             );
 
             $addi->setDebugMode(true);
-            $addi->setDestinationLogFile($logFile.'log/addi.log');
 
             $addi->setAmountDetails(
                 $order->getGrandTotal(),
@@ -288,9 +287,11 @@ class Addi extends AbstractMethod
                 $addi->setBillingAddress("virtual product without address", "virtual product", $countryId);
             }
 
-            $this->logger(json_encode($addi->makeJSONArray()));
-
             $payURL = $addi->getPayURL();
+
+            $this->logger(
+                print_r($addi->getDebugLog(),true)
+            );
 
             if (empty($payURL)) {
                 throw new LocalizedException(__("Ocurrio un error al generar la redirección hacia el portal de Addi."));
@@ -304,6 +305,7 @@ class Addi extends AbstractMethod
             $stateObject->setState(Order::STATE_PENDING_PAYMENT);
             $stateObject->setStatus('pending_payment');
             $stateObject->setIsNotified(false);
+
         }catch(Throwable $error){
                $this->logger($error->getMessage());
                throw new LocalizedException(__($error->getMessage()));
