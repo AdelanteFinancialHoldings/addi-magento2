@@ -134,10 +134,12 @@ class AddiConfigProvider implements ConfigProviderInterface
 
         $title = $country == 'CO'?self::LABEL_CO:self::LABEL_BR_TEMPLATE_01;
 
-        if ($widgetVersion == AddiHelper::WIDGET_VERSION_01) {
-            $title = self::LABEL_BR_TEMPLATE_01;
-        } elseif ($widgetVersion == AddiHelper::WIDGET_VERSION_02) {
-            $title = self::LABEL_BR_TEMPLATE_02;
+        if ($country == 'BR') {
+            if ($widgetVersion == AddiHelper::WIDGET_VERSION_01) {
+                $title = self::LABEL_BR_TEMPLATE_01;
+            } elseif ($widgetVersion == AddiHelper::WIDGET_VERSION_02) {
+                $title = self::LABEL_BR_TEMPLATE_02;
+            }
         }
 
         $labelDiscount = $country=='CO' ? self::LABEL_CO_DISCOUNT:self::LABEL_BR_DISCOUNT;
