@@ -159,5 +159,5 @@ the **Modal Styles Configuration:** tab
 ## **Questions and comments** ##
 
 If you have any questions about this product or the implementation
-contact support_ally@addi.com to obtain
+contact soporte_aliado@addi.com to obtain
 help.
