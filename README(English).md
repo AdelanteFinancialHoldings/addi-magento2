@@ -47,8 +47,7 @@ To configure the module from the merchant's administration panel, go to the sect
 
 ## Addi on the checkout page
 
-Once the module is installed in Magento, we proceed to carry out different purchase flows from the store. You can create an account or make the purchase flow as a guest.
-For the development of this module, the native content provided by Magento was used, considering simple, configurable or virtual products.
+Once the module is installed in Magento, we proceed to carry out different purchase flows from the store. You can create an account or make the purchase flow as a guest. For the development of this module, the native content provided by Magento was used, considering simple, configurable or virtual products.
 
 ## Review and Payments
 
