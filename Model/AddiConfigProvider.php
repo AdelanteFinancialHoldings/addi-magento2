@@ -152,7 +152,8 @@ class AddiConfigProvider implements ConfigProviderInterface
                     'label' => $title,
                     'country' => $country,
                     'discount' => $this->_checkoutSession->getAddiDiscount(),
-                    'label_discount' => $labelDiscount
+                    'label_discount' => $labelDiscount,
+                    'redirect_pay' => $this->_urlBuilder->getUrl('addi/redirect/pay'),
                 ),
             ),
         );
