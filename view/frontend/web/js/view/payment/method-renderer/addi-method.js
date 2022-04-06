@@ -2,6 +2,7 @@ define(
     [
         'jquery',
         'Magento_Checkout/js/view/payment/default',
+        'mage/url',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
         'mage/storage',
@@ -9,9 +10,11 @@ define(
         'domReady!',
         'mage/translate'
     ],
-    function ($,Component,fullScreenLoader,additionalValidators,storage) {
+    function ($,Component, url,fullScreenLoader,additionalValidators,storage) {
         'use strict';
         return Component.extend({
+            redirectAfterPlaceOrder: false,
+
             defaults: {
                 template: 'Addi_Payment/payment/addi',
                 documentNumber:''
@@ -63,6 +66,12 @@ define(
                 var form = '#co-payment-form';
 
                 return $(form).validation() && $(form).validation('isValid');
+            },
+
+            afterPlaceOrder: function () {
+                fullScreenLoader.startLoader();
+
+                window.location.replace(url.build(window.checkoutConfig.payment.addi.redirect_pay));
             }
         });
     }
