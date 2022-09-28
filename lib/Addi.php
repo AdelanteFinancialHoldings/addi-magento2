@@ -462,7 +462,10 @@ class Addi
         $item->setUnitPrice($unitPrice);
         $item->setTax($tax);
         $item->setPictureUrl($pictureUrl);
-        $item->setCategory($category);
+
+        if ($category) {
+            $item->setCategory($category);
+        }
 
         $this->_items[]  = $item;
 
