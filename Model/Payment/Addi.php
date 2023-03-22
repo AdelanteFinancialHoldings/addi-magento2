@@ -202,12 +202,12 @@ class Addi extends AbstractMethod
                 $clientId,
                 $clientSecret,
                 $country,
-                $isSandbox,
                 '', // agregar la imagen de magento
                 $callbackURL,
                 $baseUrl."addi/redirect/index",
                 '',
-                ''
+                '',
+                $isSandbox
             );
 
             $addi->setDebugMode(true);
