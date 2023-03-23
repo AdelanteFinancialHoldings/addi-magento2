@@ -196,7 +196,9 @@ class Index extends Action implements CsrfAwareActionInterface, HttpPostActionIn
             $payment->setAdditionalInformation("addi_status_timestamp", $params->statusTimestamp);
             $payment->capture();
             $order->setPayment($payment);
-            $order->setStatus("processing");
+            // Getting the custom status
+            $status = $this->_addiHelper->getNewOrderStatus();
+            $order->setStatus($status);
             $order->setState("processing");
 
             $order->save();

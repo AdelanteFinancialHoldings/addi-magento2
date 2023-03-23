@@ -6,6 +6,7 @@ use Magento\Catalog\Helper\Image;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\View\LayoutInterface;
+use Magento\Store\Model\ScopeInterface;
 
 class AddiHelper extends AbstractHelper
 {
@@ -82,6 +83,11 @@ class AddiHelper extends AbstractHelper
         $block->setTemplate('Addi_Payment::Checkout/BR/bnpl.phtml');
         return $block->toHtml();
 
+    }
+
+    public function getNewOrderStatus()
+    {
+        return $this->scopeConfig->getValue("payment/addi/credentials/order_status", ScopeInterface::SCOPE_STORE);
     }
 
     /**

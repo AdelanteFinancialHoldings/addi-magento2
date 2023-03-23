@@ -112,12 +112,12 @@ class Addi
         $clientId,
         $clientSecret,
         $country,
-        $sandbox = false,
         $logoURL,
         $callBackURL,
         $redirectionURL,
         $latitude,
-        $longitude
+        $longitude,
+        $sandbox = false
     ) {
         $this->_orderId = $orderId;
         $this->_description = $description;
