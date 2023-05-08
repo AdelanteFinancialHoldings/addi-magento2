@@ -71,6 +71,11 @@ class Index extends AbstractAddi
 
             $order = $this->reloadOrder($order->getId());
 
+            $this->logger(
+                "ADDI ORDER STATUS: ".
+                $order->getStatus()
+            );
+
             if ($order->getStatus() == 'processing') {
                 $this->_checkSession->setLastSuccessQuoteId($order->getQuoteId());
                 $this->_checkSession->setLastQuoteId($order->getQuoteId());
