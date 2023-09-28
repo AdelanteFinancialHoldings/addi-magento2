@@ -200,6 +200,7 @@ class Index extends Action implements CsrfAwareActionInterface, HttpPostActionIn
             $status = $this->_addiHelper->getNewOrderStatus();
             $order->setStatus($status);
             $order->setState("processing");
+            $this->logger("ADDI UPDATED ORDER STATUS for Order ID " . $params->orderId . ": " . $status);
 
             $order->save();
         } catch (Exception $e) {
