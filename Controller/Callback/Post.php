@@ -171,7 +171,14 @@ class Post extends Action
     protected function processApproved(Order $order, $params)
     {
 
-        if (!$order->canInvoice() || $order->getGrandTotal() != $params->approvedAmount) {
+        if (!$order->canInvoice() || (float)$order->getGrandTotal() != (float)$params->approvedAmount) {
+            $this->logger("El grand total almacenado en base de datos es(en float): " . strval((float)$order->getGrandTotal()));
+            $this->logger("El monto a aprobar es(en float): " . strval((float)$params->approvedAmount));
+            $this->logger("El grand total almacenado en base de datos es(normal): " . strval($order->getGrandTotal()));
+            $this->logger("El monto a aprobar es(normal): " . strval($params->approvedAmount));
+            $this->logger("La comparativa da(en float): " . strval((float)$order->getGrandTotal() != (float)$params->approvedAmount));
+            $this->logger("La comparativa da(normal): " . strval($order->getGrandTotal() != $params->approvedAmount));
+            
             return array("status" => "reject", "error" => "Order cannot be invoiced");
         }
 
@@ -183,14 +190,14 @@ class Post extends Action
                 $payment->setOrder($order);
             }
 
-            $payment->setAmountPaid($params->approvedAmount);
+            $payment->setAmountPaid((float)$params->approvedAmount);
             $payment->setTransactionId($params->orderId);
             $payment->setParentTransactionId($params->applicationId);
             $payment->setShouldCloseParentTransaction(true);
             $payment->setIsTransactionClosed(0);
             $payment->setAdditionalInformation("addi_order_id", $params->orderId);
             $payment->setAdditionalInformation("addi_application_id", $params->applicationId);
-            $payment->setAdditionalInformation("addi_approved_amount", $params->approvedAmount);
+            $payment->setAdditionalInformation("addi_approved_amount", (float)$params->approvedAmount);
             $payment->setAdditionalInformation("addi_currency", $params->currency);
             $payment->setAdditionalInformation("addi_status", $params->status);
             $payment->setAdditionalInformation("addi_status_timestamp", $params->statusTimestamp);
