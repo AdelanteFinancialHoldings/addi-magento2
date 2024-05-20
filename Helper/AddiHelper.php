@@ -14,6 +14,7 @@ class AddiHelper extends AbstractHelper
     CONST WIDGET_VERSION_02 = 'ADDI_TEMPLATE_02';
     CONST STATUS_POR_SINCRONIZAR = 'por_sincronizar';
     CONST STATUS_PROCESSING = 'processing';
+    CONST STATUS_COMPLETE = 'complete';
 
 
     /** @var Image */
@@ -91,7 +92,7 @@ class AddiHelper extends AbstractHelper
     public function getNewOrderStatus()
     {
         $status = $this->scopeConfig->getValue("payment/addi/credentials/order_status", ScopeInterface::SCOPE_STORE);
-        return $status === self::STATUS_POR_SINCRONIZAR ? $status : self::STATUS_PROCESSING;
+        return $status === self::STATUS_POR_SINCRONIZAR ? $status : ($status === self::STATUS_COMPLETE ? self::STATUS_COMPLETE : self::STATUS_PROCESSING);
     }
 
     /**

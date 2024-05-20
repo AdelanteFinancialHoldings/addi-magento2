@@ -76,7 +76,7 @@ class Index extends AbstractAddi
                 $order->getStatus()
             );
 
-            if ($order->getStatus() == 'processing' || $order->getStatus() == 'por_sincronizar') {
+            if ($order->getStatus() == 'processing' || $order->getStatus() == 'por_sincronizar' || $order->getStatus() == 'complete' ) {
                 $this->_checkSession->setLastSuccessQuoteId($order->getQuoteId());
                 $this->_checkSession->setLastQuoteId($order->getQuoteId());
                 $this->_checkSession->setLastOrderId($order->getId());
