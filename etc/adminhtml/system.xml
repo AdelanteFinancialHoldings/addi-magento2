@@ -13,6 +13,7 @@
                         <label>Enabled</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/addi/active</config_path>
+                        <backend_model>Addi\Payment\Model\Config\Backend\FetchCallbackCredentials</backend_model>
                     </field>
                     <field id="title" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
                         <label>Title</label>

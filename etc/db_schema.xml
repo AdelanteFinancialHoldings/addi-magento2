@@ -6,4 +6,23 @@
     <table name="sales_order_payment" resource="sales" engine="innodb" comment="Sales Flat Order Payment">
         <column xsi:type="varchar" name="document_number" nullable="true" comment="Document Number"/>
     </table>
+    <table name="addi_callback_credentials" resource="default" engine="innodb"
+           comment="Addi notification credentials per website">
+        <column xsi:type="int" name="id" unsigned="true" nullable="false" identity="true"
+                comment="ID"/>
+        <column xsi:type="int" name="website_id" unsigned="true" nullable="false"
+                comment="Website ID"/>
+        <column xsi:type="text" name="username_encrypted" nullable="false"
+                comment="Encrypted notification username"/>
+        <column xsi:type="text" name="password_encrypted" nullable="false"
+                comment="Encrypted notification password"/>
+        <column xsi:type="timestamp" name="updated_at" nullable="false"
+                default="CURRENT_TIMESTAMP" on_update="true" comment="Last updated"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="ADDI_CALLBACK_CREDENTIALS_WEBSITE_ID">
+            <column name="website_id"/>
+        </constraint>
+    </table>
 </schema>
