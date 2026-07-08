@@ -115,7 +115,7 @@ ajuste mejor al de tu comercio, considere los siguientes campos:
 
 **Font Size:** 14px
 
-**Addi icon Background color:** black
+**Addi icon Background color:** white
 
 **Widget Background color:** transparent
 

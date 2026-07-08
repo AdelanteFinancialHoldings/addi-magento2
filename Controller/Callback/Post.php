@@ -16,7 +16,6 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\Order\PaymentFactory;
 use Magento\Sales\Model\OrderFactory;
-use Psr\Log\LoggerInterface;
 use Magento\Framework\App\RequestInterface;
 use Addi\Payment\Helper\AddiHelper;
 use Magento\Quote\Api\CartManagementInterface;
@@ -24,6 +23,9 @@ use Magento\Checkout\Model\Session;
 use Magento\Framework\Phrase;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Addi\Payment\Logger\Logger as AddiLogger;
+use Addi\Payment\Service\CallbackCredentialsService;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Store\Model\ScopeInterface;
 
 
 class Post extends Action
@@ -36,18 +38,18 @@ class Post extends Action
     /**
      * @var JsonFactory
      */
-
     protected $_resultJsonFactory;
+
     /**
      * @var ScopeConfigInterface
      */
-
     protected $_scopeConfig;
+
     /**
      * @var OrderFactory
      */
-
     protected $_orderFactory;
+
     /**
      * @var PaymentFactory
      */
@@ -67,14 +69,12 @@ class Post extends Action
     /** @var OrderSender */
     protected $_orderSender;
 
-    /**
-     * Index constructor.
-     * @param OrderFactory $orderFactory
-     * @param PaymentFactory $paymentFactory
-     * @param JsonFactory $resultJsonFactory
-     * @param ScopeConfigInterface $scopeConfig
-     * @param Context $context
-     */
+    /** @var CallbackCredentialsService */
+    protected $_callbackCredentialsService;
+
+    /** @var StoreManagerInterface */
+    protected $_storeManager;
+
     public function __construct(
         AddiHelper $addiHelper,
         OrderFactory $orderFactory,
@@ -84,9 +84,11 @@ class Post extends Action
         CartManagementInterface $cartManagement,
         Session $checSession,
         OrderSender $orderSender,
+        CallbackCredentialsService $callbackCredentialsService,
+        StoreManagerInterface $storeManager,
         Context $context,
         AddiLogger $addiLogger
-) {
+    ) {
         parent::__construct($context);
         $this->_resultJsonFactory = $resultJsonFactory;
         $this->_scopeConfig = $scopeConfig;
@@ -96,9 +98,10 @@ class Post extends Action
         $this->_cartManagement = $cartManagement;
         $this->_orderSender = $orderSender;
         $this->_checSession = $checSession;
+        $this->_callbackCredentialsService = $callbackCredentialsService;
+        $this->_storeManager = $storeManager;
         $this->_addiLogger = $addiLogger;
     }
-
 
     /**
      * @return false|ResponseInterface|Json|ResultInterface
@@ -106,61 +109,107 @@ class Post extends Action
     public function execute()
     {
         try {
-            $retArray = array();
-            $authenticationHeader = $this->getRequest()->getHeader('Authorization');
-
-            if (strpos(strtolower($authenticationHeader), 'basic') !== 0 ||
-                !in_array(substr($authenticationHeader, 6), $this->getAuth())) {
-
-                $this->logger(
-                    "ADDI CALLBACK ERROR: Authorization Basic Error 401 Unauthorized ".
-                    $authenticationHeader
-                );
-                http_response_code(401);
-                exit(0); // @codingStandardsIgnoreLine
-            }
-
             $request = $this->getRequest()->getContent();
-            $this->logger("ADDI CALLBACK REQUEST: ". $request);
+            $this->logger("ADDI CALLBACK REQUEST: " . $request);
             $params = json_decode($request);
             $resultJson = $this->_resultJsonFactory->create();
+
+            if (empty($params->orderId)) {
+                $this->logger("ADDI CALLBACK ERROR: Missing orderId in request body");
+                http_response_code(400);
+                exit(0); // @codingStandardsIgnoreLine
+            }
 
             /** @var Order $order */
             $order = $this->_orderFactory->create()->loadByIncrementId($params->orderId);
 
             if (!$order->getId()) {
                 $retArray = array("status" => "reject", "error" => "Order does not exist.");
-            } else {
-                switch ($params->status ) {
-                    case "APPROVED": {
+                $this->logger(json_encode($retArray));
+                return $resultJson->setJsonData($request);
+            }
 
-                        try{
-                            $this->_orderSender->send($order);
-                        }catch(Exception $error){
-                            $this->logger($error->getMessage());
-                        }
+            $websiteId = (int)$this->_storeManager->getStore($order->getStoreId())->getWebsiteId();
 
-                        $retArray = $this->processApproved($order, $params);
-                        break;
-                        }
-                    case "DECLINED": case "REJECTED": case "ABANDONED":{
+            if (!$this->validateAuth($this->getRequest()->getHeader('Authorization'), $websiteId)) {
+                $this->logger("ADDI CALLBACK ERROR: Authorization failed for website " . $websiteId);
+                http_response_code(401);
+                exit(0); // @codingStandardsIgnoreLine
+            }
+
+            $retArray = array();
+
+            switch ($params->status) {
+                case "APPROVED": {
+                    try {
+                        $this->_orderSender->send($order);
+                    } catch (Exception $error) {
+                        $this->logger($error->getMessage());
+                    }
+                    $retArray = $this->processApproved($order, $params);
+                    break;
+                }
+                case "DECLINED": case "REJECTED": case "ABANDONED": {
                     $retArray = $this->processCanceled($order, $params);
                     break;
-                        }
-                    default: {
-                        $retArray = array("status" => "reject", "error" => "Incorrect Status");
-                        }
+                }
+                default: {
+                    $retArray = array("status" => "reject", "error" => "Incorrect Status");
                 }
             }
 
             $this->logger(json_encode($retArray));
-
             return $resultJson->setJsonData($request);
+
         } catch (Exception $error) {
             $this->logger($error->getMessage());
             $this->messageManager->addErrorMessage($error->getMessage());
             return $this->_redirect('checkout/cart', array('_secure' => true));
         }
+    }
+
+    /**
+     * @param string $authHeader
+     * @param int $websiteId
+     * @return bool
+     */
+    private function validateAuth($authHeader, $websiteId)
+    {
+        if (strpos(strtolower((string)$authHeader), 'basic ') !== 0) {
+            return false;
+        }
+
+        $decoded = base64_decode(substr($authHeader, 6));
+        $parts   = explode(':', $decoded, 2);
+
+        if (count($parts) !== 2) {
+            return false;
+        }
+
+        list($incomingUser, $incomingPassword) = $parts;
+
+        if ($this->_callbackCredentialsService->validateCredentials($incomingUser, $incomingPassword, $websiteId)) {
+            return true;
+        }
+
+        if ($websiteId > 0) {
+            $clientId = $this->_scopeConfig->getValue(
+                'payment/addi/credentials/client_id',
+                ScopeInterface::SCOPE_WEBSITE,
+                $websiteId
+            );
+        } else {
+            $clientId = $this->_scopeConfig->getValue('payment/addi/credentials/client_id');
+        }
+
+        if (empty($clientId)) {
+            $this->logger("ADDI CALLBACK ERROR: No operation credentials for website " . $websiteId . " — cannot refresh");
+            return false;
+        }
+
+        $this->_callbackCredentialsService->refreshCredentials($websiteId);
+
+        return $this->_callbackCredentialsService->validateCredentials($incomingUser, $incomingPassword, $websiteId);
     }
 
     /**
@@ -170,7 +219,6 @@ class Post extends Action
      */
     protected function processApproved(Order $order, $params)
     {
-
         if (!$order->canInvoice() || (float)$order->getGrandTotal() != (float)$params->approvedAmount) {
             $this->logger("El grand total almacenado en base de datos es(en float): " . strval((float)$order->getGrandTotal()));
             $this->logger("El monto a aprobar es(en float): " . strval((float)$params->approvedAmount));
@@ -178,7 +226,7 @@ class Post extends Action
             $this->logger("El monto a aprobar es(normal): " . strval($params->approvedAmount));
             $this->logger("La comparativa da(en float): " . strval((float)$order->getGrandTotal() != (float)$params->approvedAmount));
             $this->logger("La comparativa da(normal): " . strval($order->getGrandTotal() != $params->approvedAmount));
-            
+
             return array("status" => "reject", "error" => "Order cannot be invoiced");
         }
 
@@ -210,12 +258,11 @@ class Post extends Action
         } catch (Exception $e) {
             return array(
                 "status" => "reject",
-                "error" => "Error while making invoice. Magento Error: ".$e->getMessage()
+                "error" => "Error while making invoice. Magento Error: " . $e->getMessage()
             );
         }
 
         return array("status" => "accept", "error" => "");
-
     }
 
     /**
@@ -225,7 +272,6 @@ class Post extends Action
      */
     protected function processCanceled(Order $order, $params)
     {
-
         if (!$order->canCancel()) {
             return array("status" => "reject", "error" => "Order cannot be canceled");
         }
@@ -249,35 +295,8 @@ class Post extends Action
     /**
      * @inheritDoc
      */
-    // @codingStandardsIgnoreStart
-    public function createCsrfValidationException(
-        RequestInterface $request
-    ): ?InvalidRequestException {
-    // @codingStandardsIgnoreEnd
-        /** @var Redirect $resultRedirect */
-        $resultRedirect = $this->resultRedirectFactory->create();
-        $resultRedirect->setPath('*/*/');
-
-        return new InvalidRequestException(
-            $resultRedirect,
-            array(new Phrase('Invalid Form Key. Please refresh the page.'))
-        );
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getAuth()
-    {
-        return array('bUFnM250b0FkZDE6cGJkITJoIWtFN1MhczVCUw==','bUFnM250b0FkZDFwcm9kOkUleXV6TVFeVyQxdg==');
-    }
-    /**
-     * @inheritDoc
-     */
     public function validateForCsrf(RequestInterface $request): ?bool
     {
         return null;
     }
-
 }
-

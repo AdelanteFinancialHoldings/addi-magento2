@@ -28,7 +28,7 @@
                     <font_color>black</font_color>
                     <font_family>system-ui</font_family>
                     <font_size>14px</font_size>
-                    <icon_background_color>black</icon_background_color>
+                    <icon_background_color>white</icon_background_color>
                     <widget_background_color>transparent</widget_background_color>
                     <margin>8px 0px</margin>
                     <addi_logo_blank>1</addi_logo_blank>
