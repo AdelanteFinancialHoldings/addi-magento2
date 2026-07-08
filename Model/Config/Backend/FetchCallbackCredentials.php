@@ -39,13 +39,34 @@ class FetchCallbackCredentials extends Value
 
     public function afterSave()
     {
-        $websiteId = $this->resolveWebsiteId();
-        $result = $this->_callbackCredentialsService->refreshCredentials($websiteId);
+        $websiteId    = $this->resolveWebsiteId();
+        $fieldsetData = $this->getData('fieldset_data');
+
+        $clientId     = isset($fieldsetData['client_id']) ? trim($fieldsetData['client_id']) : '';
+        $clientSecret = isset($fieldsetData['client_secret']) ? trim($fieldsetData['client_secret']) : '';
+        $country      = isset($fieldsetData['country']) ? trim($fieldsetData['country']) : '';
+        $sandbox      = !empty($fieldsetData['sandbox']) && $fieldsetData['sandbox'] !== '0';
+
+        if (empty($clientId) || empty($clientSecret) || empty($country)) {
+            $this->_messageManager->addWarningMessage(
+                __('Addi: there was a problem fetching the notification credentials. '
+                    . 'Please check the operation credentials and if staging is active or not.')
+            );
+            return parent::afterSave();
+        }
+
+        $result = $this->_callbackCredentialsService->refreshCredentialsWithValues(
+            $websiteId,
+            $clientId,
+            $clientSecret,
+            $country,
+            $sandbox
+        );
 
         if (!$result) {
             $this->_messageManager->addWarningMessage(
                 __('Addi: there was a problem fetching the notification credentials. '
-                    . 'Transactions may be affected. Please contact support.')
+                    . 'Please check the operation credentials and if staging is active or not.')
             );
         }
 

@@ -37,14 +37,20 @@ class FetchCallbackCredentialsTest extends TestCase
         );
     }
 
-    public function testAfterSaveCallsRefreshForWebsiteScope()
+    public function testAfterSaveUsesFieldsetDataAndCallsRefreshWithValues()
     {
         $this->model->setScope('websites');
         $this->model->setScopeId(2);
+        $this->model->setData('fieldset_data', [
+            'client_id'     => 'test_client_id',
+            'client_secret' => 'test_secret',
+            'country'       => 'CO',
+            'sandbox'       => '1',
+        ]);
 
         $this->callbackCredentialsService->expects($this->once())
-            ->method('refreshCredentials')
-            ->with(2)
+            ->method('refreshCredentialsWithValues')
+            ->with(2, 'test_client_id', 'test_secret', 'CO', true)
             ->willReturn(true);
 
         $this->messageManager->expects($this->never())->method('addWarningMessage');
@@ -56,10 +62,16 @@ class FetchCallbackCredentialsTest extends TestCase
     {
         $this->model->setScope('websites');
         $this->model->setScopeId(1);
+        $this->model->setData('fieldset_data', [
+            'client_id'     => 'test_client_id',
+            'client_secret' => 'test_secret',
+            'country'       => 'CO',
+            'sandbox'       => '0',
+        ]);
 
         $this->callbackCredentialsService->expects($this->once())
-            ->method('refreshCredentials')
-            ->with(1)
+            ->method('refreshCredentialsWithValues')
+            ->with(1, 'test_client_id', 'test_secret', 'CO', false)
             ->willReturn(false);
 
         $this->messageManager->expects($this->once())->method('addWarningMessage');
@@ -67,15 +79,18 @@ class FetchCallbackCredentialsTest extends TestCase
         $this->model->afterSave();
     }
 
-    public function testAfterSaveUsesDefaultScopeWhenScopeIsDefault()
+    public function testAfterSaveAddsWarningWhenCredentialsMissingInFieldsetData()
     {
         $this->model->setScope('default');
         $this->model->setScopeId(0);
+        $this->model->setData('fieldset_data', [
+            'client_id'     => '',
+            'client_secret' => '',
+            'country'       => 'CO',
+        ]);
 
-        $this->callbackCredentialsService->expects($this->once())
-            ->method('refreshCredentials')
-            ->with(0)
-            ->willReturn(true);
+        $this->callbackCredentialsService->expects($this->never())->method('refreshCredentialsWithValues');
+        $this->messageManager->expects($this->once())->method('addWarningMessage');
 
         $this->model->afterSave();
     }

@@ -1,10 +1,12 @@
-"<div class=""addi-payment-logo""></div><div class=""addi-payment-text"">Offer your customers the ability to buy what they want, whenever they want with an easy NO-INTEREST installment plan with Addi. It only takes minutes, and it’s simple as can be! No hassle, no complications.</div>","<div class=""addi-payment-logo""></div><div class=""addi-payment-text"">Ofrece a tus clientes la posibilidad de comprar a cuotas lo que quieran, cuando quieran, pagando después con Addi. En minutos. SIN INTERESES. Sin complicaciones.</div>",module,Addi_Payment,1
+"<div class=""addi-payment-logo""></div><div class=""addi-payment-text"">Let your customers buy now and pay in installments with Addi — simple, fast, and flexible.</div>","<div class=""addi-payment-logo""></div><div class=""addi-payment-text"">Permite que tus clientes compren hoy y paguen a cuotas con Addi: simple, rápido y flexible.</div>",module,Addi_Payment,1
 "Enabled","Activado",module,Addi_Payment,1
 "Yes","Si",module,Addi_Payment,1
 "Title","Título",module,Addi_Payment,1
 "Payment from Applicable Countries","Países que aplica",module,Addi_Payment,1
 "All Allowed Countries","Todos los paises permitidos",module,Addi_Payment,1
-"Sandbox","Entorno de Desarrollo",module,Addi_Payment,1
+"Staging","Modo de Pruebas",module,Addi_Payment,1
+"Yes: activates test mode (no real transactions). No: production mode for real sales.","Sí: activa el modo de pruebas (sin transacciones reales). No: modo producción para ventas reales.",module,Addi_Payment,1
+"Addi: there was a problem fetching the notification credentials. Please check the operation credentials and if staging is active or not.","Addi: hubo un problema al obtener las credenciales de notificación. Por favor verifica las credenciales de operación y si el modo de pruebas está activo o no.",module,Addi_Payment,1
 "Sort Order","Orden para mostrarse",module,Addi_Payment,1
 "Specific Countries","Países Especificos",module,Addi_Payment,1
 "New Order Status","Estatus Nuevo Pedido",module,Addi_Payment,1

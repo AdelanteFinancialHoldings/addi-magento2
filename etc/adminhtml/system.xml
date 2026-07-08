@@ -3,7 +3,7 @@
 	<system>
 		<section id="payment" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="1000" translate="label">
 			<group id="addi" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label">
-                <comment><![CDATA[<div class="addi-payment-logo"></div><div class="addi-payment-text">Offer your customers the ability to buy what they want, whenever they want with an easy NO-INTEREST installment plan with Addi. It only takes minutes, and it’s simple as can be! No hassle, no complications.</div>]]></comment>
+                <comment><![CDATA[<div class="addi-payment-logo"></div><div class="addi-payment-text">Let your customers buy now and pay in installments with Addi — simple, fast, and flexible.</div>]]></comment>
                 <fieldset_css>complex addi-section</fieldset_css>
                 <frontend_model>Addi\Payment\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
                 <group id="credentials" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label">
@@ -37,8 +37,9 @@
                         <can_be_empty>0</can_be_empty>
                     </field>
                     <field id="sandbox" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="60" translate="label" type="select">
-                        <label>Sandbox</label>
+                        <label>Staging</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <comment>Yes: activates test mode (no real transactions). No: production mode for real sales.</comment>
                     </field>
                     <field id="client_id" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="90" translate="label" type="password">
                         <label>Client Id</label>

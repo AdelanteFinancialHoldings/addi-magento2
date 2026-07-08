@@ -129,7 +129,7 @@ class Index extends Action implements CsrfAwareActionInterface, HttpPostActionIn
             if (!$order->getId()) {
                 $retArray = array("status" => "reject", "error" => "Order does not exist.");
                 $this->logger(json_encode($retArray));
-                return $resultJson->setJsonData(json_encode($retArray));
+                return $resultJson->setJsonData($request);
             }
 
             $websiteId = (int)$this->_storeManager->getStore($order->getStoreId())->getWebsiteId();
@@ -162,7 +162,7 @@ class Index extends Action implements CsrfAwareActionInterface, HttpPostActionIn
             }
 
             $this->logger(json_encode($retArray));
-            return $resultJson->setJsonData(json_encode($retArray));
+            return $resultJson->setJsonData($request);
 
         } catch (Exception $error) {
             $this->logger($error->getMessage());

@@ -137,6 +137,84 @@ class CallbackCredentialsService
     }
 
     /**
+     * @param string $clientId
+     * @param string $clientSecret
+     * @param string $country
+     * @param bool $sandbox
+     * @return array|null ['user' => string, 'password' => string] or null on failure
+     */
+    public function fetchFromApiWithValues($clientId, $clientSecret, $country, $sandbox)
+    {
+        if (empty($clientId) || empty($clientSecret) || empty($country)) {
+            $this->_logger->info('ADDI: Cannot fetch notification credentials — operation credentials missing');
+            return null;
+        }
+
+        try {
+            $addi = new \Addi\Payment\lib\Addi(
+                'temp', 'temp',
+                $clientId, $clientSecret, $country,
+                '', '', '', '', '',
+                (bool)$sandbox
+            );
+            $token = $addi->getToken();
+        } catch (\Exception $e) {
+            $this->_logger->info('ADDI: Error getting JWT for credential fetch: ' . $e->getMessage());
+            return null;
+        }
+
+        $baseUrl = $sandbox
+            ? \Addi\Payment\lib\Addi::URL_SANDBOX_CO
+            : \Addi\Payment\lib\Addi::URL_PRODUCTION_CO;
+
+        $url = $baseUrl . 'v1/online-applications/callback-credentials';
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Authorization: Bearer ' . $token,
+            'Accept: application/json',
+        ));
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        $result   = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        $this->_logger->info('ADDI: GET callback-credentials HTTP ' . $httpCode . ' (from form values)');
+
+        if ($httpCode !== 200) {
+            $this->_logger->info('ADDI: Failed to fetch notification credentials. Response: ' . $result);
+            return null;
+        }
+
+        $response = json_decode($result, true);
+        if (empty($response['user']) || empty($response['password'])) {
+            $this->_logger->info('ADDI: Unexpected response format from callback-credentials endpoint');
+            return null;
+        }
+
+        return ['user' => $response['user'], 'password' => $response['password']];
+    }
+
+    /**
+     * @param int $websiteId
+     * @param string $clientId
+     * @param string $clientSecret
+     * @param string $country
+     * @param bool $sandbox
+     * @return bool
+     */
+    public function refreshCredentialsWithValues($websiteId, $clientId, $clientSecret, $country, $sandbox)
+    {
+        $credentials = $this->fetchFromApiWithValues($clientId, $clientSecret, $country, $sandbox);
+        if ($credentials === null) {
+            return false;
+        }
+        return $this->saveCredentials($websiteId, $credentials['user'], $credentials['password']);
+    }
+
+    /**
      * @param int $websiteId
      * @return bool
      */

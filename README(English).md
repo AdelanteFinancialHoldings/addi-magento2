@@ -115,7 +115,7 @@ better fit your business, consider the following fields:
 
 **Font Size:** 14px
 
-**Addi icon Background color:** black
+**Addi icon Background color:** white
 
 **Widget Background color:** transparent
 
